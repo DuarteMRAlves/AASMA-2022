@@ -24,7 +24,7 @@ class Cell(enum.Enum):
 
 class Map:
 
-    def __init__(self, grid: np.array):
+    def __init__(self, grid: np.ndarray):
         self.grid = grid
 
     def is_road(self, p: Position) -> bool:

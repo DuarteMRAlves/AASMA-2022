@@ -14,7 +14,7 @@ def main():
         [grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.ROAD,],
     ]))
     with graphical.EnvironmentPrinter() as printer:
-        environment = env.Environment(map=map, printer=printer)
+        environment = env.Environment(map=map, init_passengers=1, printer=printer)
         for _ in range(10):
             environment.render()
             time.sleep(1)

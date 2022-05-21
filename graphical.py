@@ -1,4 +1,5 @@
 import abc
+import colour
 import default
 import entity
 import env
@@ -6,7 +7,7 @@ import grid
 import numpy as np
 import pygame
 
-from typing import Optional
+from typing import Optional, Tuple
 
 class EnvironmentPrinter(env.Printer):
 
@@ -47,8 +48,12 @@ class EnvironmentPrinter(env.Printer):
                     sidewalk_printer.print(pos)
 
         # Print passengers
+        colour_picker = colour.Picker()
         pass_printer = PassengerPrinter(
-            screen=self.__screen, cell_width=cell_width, cell_height=cell_height,
+            screen=self.__screen, 
+            cell_width=cell_width, 
+            cell_height=cell_height,
+            colour_picker=colour_picker,
         )
         for p in env.passengers:
             pass_printer.print(p)
@@ -90,17 +95,50 @@ class CellPrinter(abc.ABC, BasePrinter):
 
 class RoadPrinter(CellPrinter):
     def colour(self):
-        return (50, 50, 50)
+        return colour.ROAD
 
 class SidewalkPrinter(CellPrinter):
     def colour(self):
-        return (30, 70, 30)
+        return colour.SIDEWALK
 
 class PassengerPrinter(BasePrinter):
+    def __init__(
+        self, 
+        screen: pygame.Surface, 
+        cell_width: int, 
+        cell_height: int, 
+        colour_picker: colour.Picker,
+    ):
+        super().__init__(screen=screen, cell_width=cell_width, cell_height=cell_height)
+        self._picker = colour_picker
+
     def print(self, passenger: entity.Passenger):
         draw_radius = 0.9 * (min(self._cell_height, self._cell_height) // 2)
-        
+        draw_colour = self._picker.random(not_close=[colour.ROAD, colour.SIDEWALK])
+
         pick_up_center = self.get_cell_center(passenger.pick_up)
-        pygame.draw.circle(self._screen, (128, 0, 0), center=pick_up_center, radius=draw_radius)
+        pygame.draw.circle(self._screen, draw_colour, center=pick_up_center, radius=draw_radius)
+
+        draw_text(self._screen, "Pick-Up", pick_up_center, (0, 0, 0), 18)
+
         drop_off_center = self.get_cell_center(passenger.drop_off)
-        pygame.draw.circle(self._screen, (0, 0, 128), center=drop_off_center, radius=draw_radius)
+        pygame.draw.circle(self._screen, draw_colour, center=drop_off_center, radius=draw_radius)
+
+        draw_text(self._screen, "Drop-Off", drop_off_center, (0, 0, 0), 18)
+
+
+def draw_text(
+    screen: pygame.Surface,
+    text: str, 
+    center: Tuple[int, int], 
+    color: Tuple[int, int, int], 
+    size: int, 
+    font: str = "arial", 
+    bold: bool = False,
+):
+    font = pygame.font.SysFont(font, size, bold)
+    surf = font.render(text, True, color)
+    rect = surf.get_rect()
+    rect.center = center
+
+    screen.blit(surf, rect)

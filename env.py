@@ -11,8 +11,9 @@ class Environment:
         self._rng = np.random.default_rng(seed=seed)
         self._printer = printer
         
-        self.passengers = [self._create_passenger() for _ in range(init_passengers)]
-        print(self.passengers)
+        self.passengers = []
+        for _ in range(init_passengers):
+            self.passengers.append(self._create_passenger())
 
     def render(self):
         self._printer.print(self)
@@ -20,7 +21,18 @@ class Environment:
     def _create_passenger(self):
         """Creates a passenger with random Pick-Up and Drop-Off locations."""
 
-        possible_passenger_locations = [p for p in self.map.possible_passenger_positions]
+        occupied_locations = set()
+        for p in self.passengers:
+            occupied_locations.add(p.pick_up)
+            occupied_locations.add(p.drop_off)
+
+        possible_passenger_locations = [
+            p 
+            for p in self.map.possible_passenger_positions 
+            if p not in occupied_locations
+        ]
+        if len(possible_passenger_locations) < 2:
+            raise ValueError("Unable to create passenger: Not enough free locations.")
         pick_up_loc = self._rng.choice(possible_passenger_locations)
         possible_passenger_locations.remove(pick_up_loc)
         drop_off_loc = self._rng.choice(possible_passenger_locations)

@@ -1,6 +1,6 @@
 import numpy as np
 
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 Colour = Tuple[int, int, int]
 
@@ -12,27 +12,27 @@ class Picker:
         self._rng = np.random.default_rng(seed)
         self._choices = np.arange(256)
 
-    def random(self, not_close: Optional[List[Colour]] = None):
+    def random_not_close(self, *not_close: Colour):
         colour = self._unchecked_random()
-        if not_close is not None:
-            checked = False
-            while not checked:
+        not_close = list(not_close)
+        checked = False
+        while not checked:
+            found_close = False
+            for c in not_close:
+                if are_similar(colour, c):
+                    found_close = True
+                    break
+            if found_close:
+                colour = self._unchecked_random()
                 found_close = False
-                for c in not_close:
-                    if are_similar(colour, c):
-                        found_close = True
-                        break
-                if found_close:
-                    colour = self._unchecked_random()
-                    found_close = False
-                else:
-                    checked = True
+            else:
+                checked = True
         return colour
 
     def _unchecked_random(self):
         return tuple(self._rng.choice(self._choices, size=3))
 
 
-def are_similar(a: Colour, b: Colour, tol: int = 20) -> bool:
+def are_similar(a: Colour, b: Colour, tol: int = 30) -> bool:
     """Verifies if two colours are similar."""
     return np.allclose(a, b, atol=tol)

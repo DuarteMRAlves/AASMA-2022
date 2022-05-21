@@ -7,7 +7,7 @@ import grid
 import numpy as np
 import pygame
 
-from typing import Optional, Tuple
+from typing import Callable, List, Optional, Tuple
 
 class EnvironmentPrinter(env.Printer):
 
@@ -18,6 +18,12 @@ class EnvironmentPrinter(env.Printer):
     ):
         self.__width = width
         self.__height = height
+
+        # Mapping between the passenger Drop-Off location
+        # and its colour.
+        self._passenger_colours = {}
+
+        self._colour_picker = colour.Picker()
 
     def print(self, env: env.Environment):
         env_grid = env.map.grid
@@ -48,17 +54,38 @@ class EnvironmentPrinter(env.Printer):
                     sidewalk_printer.print(pos)
 
         # Print passengers
-        colour_picker = colour.Picker()
+        self._update_passenger_colurs(env.passengers)
+
         pass_printer = PassengerPrinter(
             screen=self.__screen, 
             cell_width=cell_width, 
             cell_height=cell_height,
-            colour_picker=colour_picker,
+            pick_colour_fn=self._pick_passenger_colour,
         )
         for p in env.passengers:
             pass_printer.print(p)
 
         pygame.display.flip()
+
+    def _update_passenger_colurs(self, passengers: List[entity.Passenger]):
+        drop_off_locations = {p.drop_off for p in passengers}
+        mark_for_delete = []
+        for loc in self._passenger_colours:
+            if loc not in drop_off_locations:
+                mark_for_delete.append(loc)
+        for loc in mark_for_delete:
+            del self._passenger_colours[loc]
+
+    def _pick_passenger_colour(self, p: entity.Passenger) -> colour.Colour:
+        drop_off_loc = p.drop_off
+        if drop_off_loc in self._passenger_colours:
+            return self._passenger_colours[drop_off_loc]
+        
+        new_colour = self._colour_picker.random_not_close(
+            colour.ROAD, colour.SIDEWALK, *self._passenger_colours.values(),
+        )
+        self._passenger_colours[drop_off_loc] = new_colour
+        return new_colour
 
     def __enter__(self):
         pygame.init()
@@ -107,24 +134,24 @@ class PassengerPrinter(BasePrinter):
         screen: pygame.Surface, 
         cell_width: int, 
         cell_height: int, 
-        colour_picker: colour.Picker,
+        pick_colour_fn: Callable[[], colour.Colour],
     ):
         super().__init__(screen=screen, cell_width=cell_width, cell_height=cell_height)
-        self._picker = colour_picker
+        self._pick_fn = pick_colour_fn
 
     def print(self, passenger: entity.Passenger):
         draw_radius = 0.9 * (min(self._cell_height, self._cell_height) // 2)
-        draw_colour = self._picker.random(not_close=[colour.ROAD, colour.SIDEWALK])
+        draw_colour = self._pick_fn(passenger)
 
         pick_up_center = self.get_cell_center(passenger.pick_up)
         pygame.draw.circle(self._screen, draw_colour, center=pick_up_center, radius=draw_radius)
 
-        draw_text(self._screen, "Pick-Up", pick_up_center, (0, 0, 0), 18)
+        draw_text(self._screen, "Pick-Up", pick_up_center, (0, 0, 0), 16)
 
         drop_off_center = self.get_cell_center(passenger.drop_off)
         pygame.draw.circle(self._screen, draw_colour, center=drop_off_center, radius=draw_radius)
 
-        draw_text(self._screen, "Drop-Off", drop_off_center, (0, 0, 0), 18)
+        draw_text(self._screen, "Drop-Off", drop_off_center, (0, 0, 0), 16)
 
 
 def draw_text(

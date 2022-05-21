@@ -44,7 +44,10 @@ class Map:
                 positions.append(Position(width=width, height=height))
         return positions
 
-    
+    @property
+    def possible_taxi_positions(self) -> List[Position]:
+        return [p for p in self.all_positions if self.is_road(p)]
+
     @property
     def possible_passenger_positions(self) -> List[Position]:
         return [

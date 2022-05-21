@@ -53,6 +53,13 @@ class EnvironmentPrinter(env.Printer):
                 elif cell == grid.Cell.SIDEWALK:
                     sidewalk_printer.print(pos)
 
+        # Print taxis
+        taxi_printer = TaxiPrinter(
+            screen=self.__screen, cell_width=cell_width, cell_height=cell_height,
+        )
+        for t in env.taxis:
+            taxi_printer.print(t)
+
         # Print passengers
         self._update_passenger_colurs(env.passengers)
 
@@ -128,6 +135,33 @@ class SidewalkPrinter(CellPrinter):
     def colour(self):
         return colour.SIDEWALK
 
+class TaxiPrinter(BasePrinter):
+    def print(self, taxi: entity.Taxi):
+        center_width, center_height = self.get_cell_center(taxi.loc)
+        car_length = 0.9 * min(self._cell_height, self._cell_width)
+        car_width = car_length // 2
+        
+        if taxi.direction in (entity.Direction.UP, entity.Direction.DOWN):
+            left = center_width - car_width // 2
+            top = center_height - car_length // 2
+            rect = pygame.Rect(left, top, car_width, car_length)
+        elif taxi.direction in (entity.Direction.LEFT, entity.Direction.RIGHT):
+            left = center_width - car_length // 2
+            top = center_height - car_width // 2
+            rect = pygame.Rect(left, top, car_length, car_width)
+        pygame.draw.rect(self._screen, colour.TAXI, rect)
+
+        if taxi.direction == entity.Direction.UP:
+            front_loc = (center_width, center_height - car_length // 2)
+        elif taxi.direction == entity.Direction.DOWN:
+            front_loc = (center_width, center_height + car_length // 2)
+        elif taxi.direction == entity.Direction.LEFT:
+            front_loc = (center_width - car_length // 2, center_height)
+        elif taxi.direction == entity.Direction.RIGHT:
+            front_loc = (center_width + car_length // 2, center_height)
+        pygame.draw.line(self._screen, (0, 0, 0), (center_width, center_height), front_loc, width=2)
+
+
 class PassengerPrinter(BasePrinter):
     def __init__(
         self, 
@@ -140,7 +174,7 @@ class PassengerPrinter(BasePrinter):
         self._pick_fn = pick_colour_fn
 
     def print(self, passenger: entity.Passenger):
-        draw_radius = 0.9 * (min(self._cell_height, self._cell_height) // 2)
+        draw_radius = 0.9 * (min(self._cell_height, self._cell_width) // 2)
         draw_colour = self._pick_fn(passenger)
 
         pick_up_center = self.get_cell_center(passenger.pick_up)

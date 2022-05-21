@@ -6,6 +6,7 @@ Colour = Tuple[int, int, int]
 
 ROAD: Colour = (75, 75, 75)
 SIDEWALK: Colour = (50, 100, 50)
+TAXI: Colour = (207, 191, 56)
 
 class Picker:
     def __init__(self, seed: Optional[int] = None) -> None:

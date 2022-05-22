@@ -61,7 +61,7 @@ class EnvironmentPrinter(env.Printer):
             taxi_printer.print(t)
 
         # Print passengers
-        self._update_passenger_colurs(env.passengers)
+        self._remove_colours_for_disapeared_passengers(env.passengers)
 
         pass_printer = PassengerPrinter(
             screen=self.__screen, 
@@ -74,7 +74,7 @@ class EnvironmentPrinter(env.Printer):
 
         pygame.display.flip()
 
-    def _update_passenger_colurs(self, passengers: List[entity.Passenger]):
+    def _remove_colours_for_disapeared_passengers(self, passengers: List[entity.Passenger]):
         drop_off_locations = {p.drop_off for p in passengers}
         mark_for_delete = []
         for loc in self._passenger_colours:
@@ -89,7 +89,7 @@ class EnvironmentPrinter(env.Printer):
             return self._passenger_colours[drop_off_loc]
         
         new_colour = self._colour_picker.random_not_close(
-            colour.ROAD, colour.SIDEWALK, *self._passenger_colours.values(),
+            colour.ROAD, colour.SIDEWALK, colour.TAXI, *self._passenger_colours.values(),
         )
         self._passenger_colours[drop_off_loc] = new_colour
         return new_colour
@@ -140,7 +140,7 @@ class TaxiPrinter(BasePrinter):
         center_width, center_height = self.get_cell_center(taxi.loc)
         car_length = 0.9 * min(self._cell_height, self._cell_width)
         car_width = car_length // 2
-        
+
         if taxi.direction in (entity.Direction.UP, entity.Direction.DOWN):
             left = center_width - car_width // 2
             top = center_height - car_length // 2
@@ -168,7 +168,7 @@ class PassengerPrinter(BasePrinter):
         screen: pygame.Surface, 
         cell_width: int, 
         cell_height: int, 
-        pick_colour_fn: Callable[[], colour.Colour],
+        pick_colour_fn: Callable[[entity.Passenger], colour.Colour],
     ):
         super().__init__(screen=screen, cell_width=cell_width, cell_height=cell_height)
         self._pick_fn = pick_colour_fn

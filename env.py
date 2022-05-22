@@ -1,6 +1,7 @@
 import abc
 import grid
 import entity
+import log
 import numpy as np
 
 from typing import List
@@ -16,10 +17,13 @@ class Environment:
         self._rng = np.random.default_rng(seed=seed)
         self._printer = printer
 
+        self._logger = log.new(__name__)
+        self._timestep = 0
+
         self.taxis = []
         for _ in range(init_taxis):
             self.taxis.append(self._create_taxi())
-        print(self.taxis)
+
         self.passengers = []
         for _ in range(init_passengers):
             self.passengers.append(self._create_passenger())
@@ -27,8 +31,10 @@ class Environment:
     def render(self):
         self._printer.print(self)
 
-    def _create_taxi(self):
-        """Creates a taxi with a random location and direction."""
+    def _create_taxi(self) -> entity.Taxi:
+        """Creates a taxi with a random location and direction.
+        
+        The taxi initial location will not overlap with another taxi."""
 
         occupied_locations = set()
         for t in self.taxis:
@@ -49,7 +55,9 @@ class Environment:
             entity.Direction.RIGHT,
         ]
         direction = self._rng.choice(possible_taxi_directions)
-        return entity.Taxi(loc=loc, direction=direction)
+        taxi = entity.Taxi(loc=loc, direction=direction)
+        log.create_taxi(self._logger, self._timestep, taxi)
+        return taxi
 
     def _create_passenger(self):
         """Creates a passenger with random Pick-Up and Drop-Off locations.
@@ -73,9 +81,9 @@ class Environment:
         pick_up_loc = self._rng.choice(possible_passenger_locations)
         possible_passenger_locations.remove(pick_up_loc)
         drop_off_loc = self._rng.choice(possible_passenger_locations)
-        return entity.Passenger(
-            pick_up=pick_up_loc, drop_off=drop_off_loc, pick_up_time=0, travel_time=0,
-        )
+        passenger = entity.Passenger(pick_up=pick_up_loc, drop_off=drop_off_loc)
+        log.create_passenger(self._logger, self._timestep, passenger)
+        return passenger
 
 
 class Printer(abc.ABC):

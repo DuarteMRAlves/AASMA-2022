@@ -108,9 +108,10 @@ class BasePrinter:
         self._cell_width = cell_width
         self._cell_height = cell_height
 
-    def get_cell_center(self, pos: grid.Position):
-        left = pos.width * self._cell_width
-        top = pos.height * self._cell_height
+    def get_cell_center(self, pos: grid.Position) -> Tuple[int, int]:
+        """Computes the center pixels for a given position."""
+        left = pos.x * self._cell_width
+        top = pos.y * self._cell_height
         return (left + self._cell_width // 2, top + self._cell_height // 2)
 
 class CellPrinter(abc.ABC, BasePrinter):
@@ -118,9 +119,10 @@ class CellPrinter(abc.ABC, BasePrinter):
     def colour(self):
         pass
 
-    def print(self, pos: grid.Position):
-        left = pos.width * self._cell_width
-        top = pos.height * self._cell_height
+    def print(self, pos: grid.Position) -> None:
+        """Draws a rectangle of a given colour for the given position."""
+        left = pos.x * self._cell_width
+        top = pos.y * self._cell_height
         rect = pygame.Rect(left, top, self._cell_width, self._cell_height)
         pygame.draw.rect(self._screen, self.colour(), rect)
 

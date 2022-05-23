@@ -6,16 +6,25 @@ from typing import List, Optional
 
 @dataclasses.dataclass(frozen=True)
 class Position:
-    width: int
-    height: int
+    """Represents the coordinates of a grid position.
+    
+    This position is not guarantied to be inside the map
+    or be of any specific type (such as Road or Sidewalk).
+    """
+    x: int
+    y: int
 
     @property
-    def adj(self):
+    def adj(self) -> "List[Position]":
+        """Positions that are adjacent to this position.
+        
+        Returns a list with the position above, bellow, to the
+        right and to the left."""
         return [
-            Position(width=self.width+1, height=self.height),
-            Position(width=self.width-1, height=self.height),
-            Position(width=self.width, height=self.height+1),
-            Position(width=self.width, height=self.height-1),
+            Position(x=self.x+1, y=self.y),
+            Position(x=self.x-1, y=self.y),
+            Position(x=self.x, y=self.y+1),
+            Position(x=self.x, y=self.y-1),
         ]
 
 class Cell(enum.Enum):
@@ -40,8 +49,8 @@ class Map:
         positions = []
         with np.nditer(self.grid, flags=["multi_index", "refs_ok"]) as it:
             for _ in it:
-                height, width = it.multi_index
-                positions.append(Position(width=width, height=height))
+                y, x = it.multi_index
+                positions.append(Position(x=x, y=y))
         return positions
 
     @property
@@ -57,13 +66,13 @@ class Map:
         ]
 
     def is_inside_map(self, p: Position) -> bool:
-        return 0 <= p.height < self.height and 0 <= p.width < self.width
+        return 0 <= p.y < self.height and 0 <= p.x < self.width
 
     def is_road(self, p: Position) -> bool:
-        return self.grid[p.height, p.width] == Cell.ROAD
+        return self.grid[p.y, p.x] == Cell.ROAD
 
     def is_sidewalk(self, p: Position) -> bool:
-        return self.grid[p.height, p.width] == Cell.SIDEWALK
+        return self.grid[p.y, p.x] == Cell.SIDEWALK
 
     def adj_positions(self, p: Position, cell_type: Optional[Cell]) -> List[Position]:
         positions = [adj for adj in p.adj if self.is_inside_map(adj)]

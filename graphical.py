@@ -43,15 +43,13 @@ class EnvironmentPrinter(env.Printer):
             screen=self.__screen, cell_width=cell_width, cell_height=cell_height,
         )
 
-        with np.nditer(env_grid, flags=["multi_index", "refs_ok"]) as it:
-            for i in it:
-                height, width = it.multi_index
-                cell = env_grid[height, width]
-                pos = grid.Position(width=width, height=height)
-                if cell == grid.Cell.ROAD:
-                    road_printer.print(pos)
-                elif cell == grid.Cell.SIDEWALK:
-                    sidewalk_printer.print(pos)
+        for pos in env.map.all_positions:
+            if env.map.is_road(pos):
+                road_printer.print(pos)
+            elif env.map.is_sidewalk(pos):
+                sidewalk_printer.print(pos)
+            else:
+                raise ValueError(f"Position not road or sidewalk: {pos}")
 
         # Print taxis
         taxi_printer = TaxiPrinter(

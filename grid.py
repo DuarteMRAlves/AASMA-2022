@@ -31,6 +31,9 @@ class Cell(enum.Enum):
     ROAD = 0
     SIDEWALK = 1
 
+    def __repr__(self) -> str:
+        return f"Cell({self.name})"
+
 class Map:
 
     def __init__(self, grid: np.ndarray):

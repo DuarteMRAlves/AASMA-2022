@@ -13,12 +13,7 @@ class EnvironmentPrinter(env.Printer):
 
     def __init__(
         self, 
-        width: Optional[int] = default.WIDTH, 
-        height: Optional[int] = default.HEIGHT,
     ):
-        self.__width = width
-        self.__height = height
-
         # Mapping between the passenger Drop-Off location
         # and its colour.
         self._passenger_colours = {}
@@ -94,7 +89,9 @@ class EnvironmentPrinter(env.Printer):
 
     def __enter__(self):
         pygame.init()
-        self.__screen = pygame.display.set_mode((self.__width, self.__height))
+        self.__width = pygame.display.Info().current_w
+        self.__height = pygame.display.Info().current_h
+        self.__screen = pygame.display.set_mode((self.__width, self.__height), pygame.FULLSCREEN)
         return self
 
     def __exit__(self, ex_type, ex_val, ex_traceback) -> bool:

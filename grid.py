@@ -15,17 +15,44 @@ class Position:
     y: int
 
     @property
+    def up(self) -> "Position":
+        """Position above this position."""
+        # Y-axis is inverted as arrays are indexed as follows:
+        # 0      -> [[...],
+        # 1      ->  [...],
+        # ...         ...
+        # len(a) ->  [...]]
+        # and so y=y-1 increases the position.
+        return Position(x=self.x, y=self.y-1)
+
+    @property
+    def down(self) -> "Position":
+        """Position below of this position."""
+        # Y-axis is inverted as arrays are indexed as follows:
+        # 0      -> [[...],
+        # 1      ->  [...],
+        # ...         ...
+        # len(a) ->  [...]]
+        # and so y=y+1 decreases the position.
+        return Position(x=self.x, y=self.y+1)
+
+    @property
+    def left(self) -> "Position":
+        """Position to the left of this position."""
+        return Position(x=self.x-1, y=self.y)
+
+    @property
+    def right(self) -> "Position":
+        """Position to the right of this position."""
+        return Position(x=self.x+1, y=self.y)
+
+    @property
     def adj(self) -> "List[Position]":
         """Positions that are adjacent to this position.
         
-        Returns a list with the position above, bellow, to the
+        Returns a list with the position above, below, to the
         right and to the left."""
-        return [
-            Position(x=self.x+1, y=self.y),
-            Position(x=self.x-1, y=self.y),
-            Position(x=self.x, y=self.y+1),
-            Position(x=self.x, y=self.y-1),
-        ]
+        return [self.up, self.down, self.left, self.right]
 
 class Cell(enum.Enum):
     ROAD = 0

@@ -1,3 +1,4 @@
+import env
 import entity
 import logging
 
@@ -12,7 +13,10 @@ def new(name: str, lvl: str = "info") -> logging.Logger:
     return logger
 
 def create_taxi(logger: logging.Logger, t: int, taxi: entity.Taxi):
-    logger.info("Created %s", taxi, extra={"timestep": t})
+    logger.info("Created %r", taxi, extra={"timestep": t})
 
 def create_passenger(logger: logging.Logger, t: int, passenger: entity.Passenger):
-    logger.info("Created %s", passenger, extra={"timestep": t})
+    logger.info("Created %r", passenger, extra={"timestep": t})
+
+def choosen_action(logger: logging.Logger, t: int, agent: int, action: "env.Action"):
+    logger.info("Agent %d wants to %r", agent, action, extra={"timestep": t})

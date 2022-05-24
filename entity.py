@@ -26,18 +26,6 @@ class Taxi:
     direction: Direction 
     has_passenger: bool = False
 
-    def move(self):
-        if self.direction == Direction.UP:
-            self.loc = self.loc.up
-        elif self.direction == Direction.DOWN:
-            self.loc = self.loc.down
-        elif self.direction == Direction.RIGHT:
-            self.loc = self.loc.right
-        elif self.direction == Direction.LEFT:
-            self.loc = self.loc.left
-        else:
-            raise ValueError(f"Unknown direction in taxi movement {self.direction}")
-
     def rot_r(self):
         if self.direction == Direction.UP:
             self.direction = Direction.RIGHT

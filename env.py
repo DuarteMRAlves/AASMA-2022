@@ -92,7 +92,7 @@ class Environment:
             # FIXME: Does not check bounds. 
             # FIXME: We must decide the behaviour for this case.
             if act == Action.MOVE:
-                taxi.move()
+                self._move_taxi(taxi)
             elif act == Action.ROT_R:
                 taxi.rot_r()
             elif act == Action.ROT_L:
@@ -128,6 +128,23 @@ class Environment:
         taxi = entity.Taxi(loc=loc, direction=direction)
         log.create_taxi(self._logger, self._timestep, taxi)
         return taxi
+
+    def _move_taxi(self, taxi: entity.Taxi):
+        """Move a taxi while checking for sidewalks."""
+        if taxi.direction == entity.Direction.UP:
+            target_loc = taxi.loc.up
+        elif taxi.direction == entity.Direction.DOWN:
+            target_loc = taxi.loc.down
+        elif taxi.direction == entity.Direction.RIGHT:
+            target_loc = taxi.loc.right
+        elif taxi.direction == entity.Direction.LEFT:
+            target_loc = taxi.loc.left
+        else:
+            raise ValueError(f"Unknown direction in taxi movement {self.direction}")
+        # Do not move if the target location is not a road.
+        if not self.map.is_road(target_loc):
+            target_loc = taxi.loc
+        taxi.loc = target_loc
 
     def _create_passenger(self):
         """Creates a passenger with random Pick-Up and Drop-Off locations.

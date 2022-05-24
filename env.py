@@ -1,5 +1,6 @@
 import abc
 import dataclasses
+import enum
 import grid
 import entity
 import log
@@ -24,7 +25,7 @@ class Observation:
     taxis: grid.Position
     passengers: entity.Passenger
 
-class Action:
+class Action(enum.Enum):
     """Specifies possible actions the taxis can perform."""
 
     MOVE = 0
@@ -77,8 +78,25 @@ class Environment:
 
         Returns: List of observations for the agents.
         """
+        actions = list(actions)
+        assert len(self.taxis) == len(actions), f"Received {len(actions)} actions for {len(self.taxis)} agents."
 
         self._timestep += 1
+
+        # Log actions
+        for i, act in enumerate(actions):
+            log.choosen_action(self._logger, self._timestep, i, act)
+
+        # Move taxis
+        for taxi, act in zip(self.taxis, actions):
+            # FIXME: Does not check bounds. 
+            # FIXME: We must decide the behaviour for this case.
+            if act == Action.MOVE:
+                taxi.move()
+            elif act == Action.ROT_R:
+                taxi.rot_r()
+            elif act == Action.ROT_L:
+                taxi.rot_l()
 
     def render(self):
         self._printer.print(self)

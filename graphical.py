@@ -1,4 +1,5 @@
 import abc
+from tkinter import Grid
 import colour
 import default
 import entity
@@ -12,12 +13,13 @@ from typing import Callable, List, Optional, Tuple
 class EnvironmentPrinter(env.Printer):
 
     def __init__(
-        self, 
+        self,
+        grid: Grid
     ):
         # Mapping between the passenger Drop-Off location
         # and its colour.
         self._passenger_colours = {}
-
+        self.grid = grid
         self._colour_picker = colour.Picker()
 
     def print(self, env: env.Environment):
@@ -89,9 +91,9 @@ class EnvironmentPrinter(env.Printer):
 
     def __enter__(self):
         pygame.init()
-        self.__width = pygame.display.Info().current_w
-        self.__height = pygame.display.Info().current_h
-        self.__screen = pygame.display.set_mode((self.__width, self.__height), pygame.FULLSCREEN)
+        n_cells = self.grid.shape[0] * self.grid.shape[1]
+        self.__width = self.__height = ((min(pygame.display.Info().current_w, pygame.display.Info().current_h) * 0.8) // n_cells) * n_cells
+        self.__screen = pygame.display.set_mode((self.__width, self.__height))
         return self
 
     def __exit__(self, ex_type, ex_val, ex_traceback) -> bool:

@@ -122,44 +122,41 @@ class CellPrinter(abc.ABC, BasePrinter):
         """Draws a rectangle of a given colour for the given position."""
         left = pos.x * self._cell_width
         top = pos.y * self._cell_height
-        rect = pygame.Rect(left, top, self._cell_width, self._cell_height)
-        pygame.draw.rect(self._screen, self.colour(), rect)
-
+        #Change function colour name
+        self._screen.blit(self.colour(), (left,top))
+        
 
 class RoadPrinter(CellPrinter):
     def colour(self):
-        return colour.ROAD
+        #return colour.ROAD
+        return pygame.transform.scale(pygame.image.load("Images/estrada.png"), (self._cell_width, self._cell_height))
 
 class SidewalkPrinter(CellPrinter):
     def colour(self):
-        return colour.SIDEWALK
+        #return colour.SIDEWALK
+        return pygame.transform.scale(pygame.image.load("Images/passeio.png"), (self._cell_width, self._cell_height))
 
 class TaxiPrinter(BasePrinter):
     def print(self, taxi: entity.Taxi):
-        center_width, center_height = self.get_cell_center(taxi.loc)
-        car_length = 0.9 * min(self._cell_height, self._cell_width)
-        car_width = car_length // 2
 
-        if taxi.direction in (entity.Direction.UP, entity.Direction.DOWN):
-            left = center_width - car_width // 2
-            top = center_height - car_length // 2
-            rect = pygame.Rect(left, top, car_width, car_length)
-        elif taxi.direction in (entity.Direction.LEFT, entity.Direction.RIGHT):
-            left = center_width - car_length // 2
-            top = center_height - car_width // 2
-            rect = pygame.Rect(left, top, car_length, car_width)
-        pygame.draw.rect(self._screen, colour.TAXI, rect)
-
+        car = pygame.transform.scale(pygame.image.load("Images/taxi.png"), (0.8*self._cell_width, 0.8*self._cell_height))
+        
+        left = taxi.loc.x * self._cell_width + 0.1 * self._cell_width
+        top = taxi.loc.y * self._cell_height + 0.1 * self._cell_height
+        
         if taxi.direction == entity.Direction.UP:
-            front_loc = (center_width, center_height - car_length // 2)
+            taxi = pygame.transform.rotate(car, 0)
+            
         elif taxi.direction == entity.Direction.DOWN:
-            front_loc = (center_width, center_height + car_length // 2)
+            taxi = pygame.transform.rotate(car , -180)
+            
         elif taxi.direction == entity.Direction.LEFT:
-            front_loc = (center_width - car_length // 2, center_height)
+            taxi = pygame.transform.rotate(car, -90)
+            
         elif taxi.direction == entity.Direction.RIGHT:
-            front_loc = (center_width + car_length // 2, center_height)
-        pygame.draw.line(self._screen, (0, 0, 0), (center_width, center_height), front_loc, width=2)
-
+            taxi = pygame.transform.rotate(car, 90)
+            
+        self._screen.blit(taxi,(left,top))
 
 class PassengerPrinter(BasePrinter):
     def __init__(

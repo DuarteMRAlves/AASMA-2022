@@ -97,6 +97,8 @@ class Environment:
                 taxi.rot_r()
             elif act == Action.ROT_L:
                 taxi.rot_l()
+            elif act == Action.PICK_UP:
+                taxi.pickup_up(self.passengers, self.map)
 
     def render(self):
         self._printer.print(self)
@@ -171,6 +173,8 @@ class Environment:
         passenger = entity.Passenger(pick_up=pick_up_loc, drop_off=drop_off_loc)
         log.create_passenger(self._logger, self._timestep, passenger)
         return passenger
+
+
 
 
 class Printer(abc.ABC):

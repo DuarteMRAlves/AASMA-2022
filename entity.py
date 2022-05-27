@@ -6,10 +6,13 @@ import grid
 class Passenger:
     pick_up: grid.Position
     drop_off: grid.Position
-
+    in_trip : bool = False
+    
     # Passenger metrics
     pick_up_time: int = 0
     travel_time: int = 0
+
+
 
 class Direction(enum.Enum):
     UP = 0
@@ -36,7 +39,7 @@ class Taxi:
         elif self.direction == Direction.LEFT:
             self.direction = Direction.UP
         else:
-            raise ValueError(f"Unknown direction in taxi rotate right {self.direction}")
+            raise ValueError(f"Unknown direction in taxi rotate right {self.direction}.")
 
     def rot_l(self):
         if self.direction == Direction.UP:
@@ -48,4 +51,15 @@ class Taxi:
         elif self.direction == Direction.LEFT:
             self.direction = Direction.DOWN
         else:
-            raise ValueError(f"Unknown direction in taxi rotate left {self.direction}")
+            raise ValueError(f"Unknown direction in taxi rotate left {self.direction}.")
+        
+    def pickup_up(self, passengers: list, env_grid: grid.Map):
+        """Picks-Up Passenger from a location if near him"""
+        passenger = env_grid.choose_adj_passenger(self.loc, passengers)
+        if passenger != None and self.has_passenger == False:
+            print("Picks passenger")
+            passenger.in_trip = True
+            self.has_passenger = True
+            return passenger
+            
+        return None

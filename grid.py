@@ -120,3 +120,23 @@ class Map:
             return any(self.is_sidewalk(adj) for adj in positions)
         else:
             raise ValueError(f"Unknown cell type: {cell_type}")
+        
+    def choose_adj_passenger(self, p: Position, passengers: list):
+        """
+        Looks for the first passenger in an adjacent cell
+        Args:
+            p (Position): Taxi Position in the grid
+            passengers (list): List of passenger position in the grid
+
+        Returns:
+            Passenger: Returns the first passenger that is in one of the adjacent cells. 
+                       If there's none return null.
+        """
+        # FIXME: Shuffle positions
+        sidewalks_nearby = self.adj_positions(p, Cell.SIDEWALK)
+        for sidewalk in sidewalks_nearby:
+            for passenger in passengers:
+                if sidewalk.x == passenger.pick_up.x and sidewalk.y == passenger.pick_up.y and passenger.in_trip == False:
+                   return passenger 
+               
+        return None

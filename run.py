@@ -8,8 +8,8 @@ import time
 
 def main():
     map = grid.Map(default.MAP)
-    num_agents = 4
-    agents = [agent.Random() for _ in range(num_agents)]
+    num_agents = 1
+    agents = [agent.Debug(agent_id=i) for i in range(num_agents)]
     with graphical.EnvironmentPrinter(map.grid) as printer:
         environment = env.Environment(map=map, init_taxis=num_agents, init_passengers=4, printer=printer)
         running = True

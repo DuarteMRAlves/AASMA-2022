@@ -151,10 +151,10 @@ class TaxiPrinter(BasePrinter):
             taxi = pygame.transform.rotate(car , -180)
             
         elif taxi.direction == entity.Direction.LEFT:
-            taxi = pygame.transform.rotate(car, -90)
+            taxi = pygame.transform.rotate(car, 90)
             
         elif taxi.direction == entity.Direction.RIGHT:
-            taxi = pygame.transform.rotate(car, 90)
+            taxi = pygame.transform.rotate(car, -90)
             
         self._screen.blit(taxi,(left,top))
 

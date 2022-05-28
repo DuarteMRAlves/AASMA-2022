@@ -22,9 +22,10 @@ class Random(Base):
     def __init__(self, seed: int = None) -> None:
         self._rng = np.random.default_rng(seed=seed)
         self._actions = [
-            env.Action.MOVE,
-            env.Action.ROT_R,
-            env.Action.ROT_L,
+            env.Action.UP,
+            env.Action.DOWN,
+            env.Action.LEFT,
+            env.Action.RIGHT,
             env.Action.STAY,
             env.Action.PICK_UP,
             env.Action.DROP_OFF,

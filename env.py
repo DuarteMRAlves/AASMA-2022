@@ -28,22 +28,25 @@ class Observation:
 class Action(enum.Enum):
     """Specifies possible actions the taxis can perform."""
 
-    MOVE = 0
-    """Moves the taxi forward."""
+    UP = 0
+    """Moves the taxi up."""
 
-    ROT_R = 1
-    """Rotates the taxi 90 degrees to the right."""
+    DOWN = 1
+    """Moves the taxi down."""
 
-    ROT_L = 2
-    """Rotates the taxi 90 degrees to the left."""
+    LEFT = 2
+    """Moves the taxi to the left."""
 
-    STAY = 3
+    RIGHT = 3
+    """Moves the taxi to the right."""
+
+    STAY = 4
     """Stays in the same position."""
 
-    PICK_UP = 4
+    PICK_UP = 5
     """Picks up an adjacent passenger."""
 
-    DROP_OFF = 5
+    DROP_OFF = 6
     """Drops off a passenger in an adjacent cell."""
 
     def __repr__(self) -> str:
@@ -89,14 +92,8 @@ class Environment:
 
         # Move taxis
         for taxi, act in zip(self.taxis, actions):
-            # FIXME: Does not check bounds. 
-            # FIXME: We must decide the behaviour for this case.
-            if act == Action.MOVE:
-                self._move_taxi(taxi)
-            elif act == Action.ROT_R:
-                taxi.rot_r()
-            elif act == Action.ROT_L:
-                taxi.rot_l()
+            if act in (Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT):
+                self._move_taxi(taxi, act)
             elif act == Action.PICK_UP:
                 taxi.pickup_up(self.passengers, self.map)
             elif act == Action.DROP_OFF:
@@ -133,22 +130,29 @@ class Environment:
         log.create_taxi(self._logger, self._timestep, taxi)
         return taxi
 
-    def _move_taxi(self, taxi: entity.Taxi):
-        """Move a taxi while checking for sidewalks."""
-        if taxi.direction == entity.Direction.UP:
+    def _move_taxi(self, taxi: entity.Taxi, action: Action):
+        """Move a taxi according to an action while checking for sidewalks."""
+        if action == Action.UP:
             target_loc = taxi.loc.up
-        elif taxi.direction == entity.Direction.DOWN:
+            target_dir = entity.Direction.UP
+        elif action == Action.DOWN:
             target_loc = taxi.loc.down
-        elif taxi.direction == entity.Direction.RIGHT:
+            target_dir = entity.Direction.DOWN
+        elif action == Action.RIGHT:
             target_loc = taxi.loc.right
-        elif taxi.direction == entity.Direction.LEFT:
+            target_dir = entity.Direction.RIGHT
+        elif action == Action.LEFT:
             target_loc = taxi.loc.left
+            target_dir = entity.Direction.LEFT
         else:
             raise ValueError(f"Unknown direction in taxi movement {self.direction}")
         # Do not move if the target location is not a road.
+        # However we still update target dir to "show" the
+        # taxi went into a sidewalk.
         if not self.map.is_road(target_loc):
             target_loc = taxi.loc
         taxi.loc = target_loc
+        taxi.direction = target_dir
 
     def _create_passenger(self):
         """Creates a passenger with random Pick-Up and Drop-Off locations.

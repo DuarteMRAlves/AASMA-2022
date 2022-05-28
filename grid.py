@@ -1,5 +1,6 @@
 import dataclasses
 import enum
+import random
 import numpy as np
 
 from typing import List, Optional
@@ -121,7 +122,7 @@ class Map:
         else:
             raise ValueError(f"Unknown cell type: {cell_type}")
         
-    def choose_adj_passenger(self, p: Position, passengers: list):
+    def choose_adj_passenger(self, p: Position, passengers: list, tripstate):
         """
         Looks for the first passenger in an adjacent cell
         Args:
@@ -132,11 +133,17 @@ class Map:
             Passenger: Returns the first passenger that is in one of the adjacent cells. 
                        If there's none return null.
         """
-        # FIXME: Shuffle positions
+        # FIXME: Add a shuffle
         sidewalks_nearby = self.adj_positions(p, Cell.SIDEWALK)
         for sidewalk in sidewalks_nearby:
             for passenger in passengers:
-                if sidewalk.x == passenger.pick_up.x and sidewalk.y == passenger.pick_up.y and passenger.in_trip == False:
+                if sidewalk.x == passenger.pick_up.x and sidewalk.y == passenger.pick_up.y and passenger.in_trip != tripstate.INTRIP and passenger.in_trip != tripstate.FINISHED:
                    return passenger 
                
         return None
+
+
+
+    def choose_drop_location(self, p: Position) -> Position:
+        sidewalks_nearby = self.adj_positions(p, Cell.SIDEWALK)
+        return random.choice(sidewalks_nearby)

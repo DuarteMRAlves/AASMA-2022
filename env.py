@@ -99,6 +99,8 @@ class Environment:
                 taxi.rot_l()
             elif act == Action.PICK_UP:
                 taxi.pickup_up(self.passengers, self.map)
+            elif act == Action.DROP_OFF:
+                taxi.drop_off(self.map)
 
     def render(self):
         self._printer.print(self)
@@ -165,6 +167,8 @@ class Environment:
             for p in self.map.possible_passenger_positions 
             if p not in occupied_locations
         ]
+
+        
         if len(possible_passenger_locations) < 2:
             raise ValueError("Unable to create passenger: Not enough free locations.")
         pick_up_loc = self._rng.choice(possible_passenger_locations)

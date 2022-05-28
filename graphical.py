@@ -173,8 +173,9 @@ class PassengerPrinter(BasePrinter):
         draw_radius = 0.9 * (min(self._cell_height, self._cell_width) // 2)
         draw_colour = self._pick_fn(passenger)
 
-        pick_up_center = self.get_cell_center(passenger.pick_up)
-        pygame.draw.circle(self._screen, draw_colour, center=pick_up_center, radius=draw_radius)
+        if passenger.in_trip.WAITING:
+            pick_up_center = self.get_cell_center(passenger.pick_up)
+            pygame.draw.circle(self._screen, draw_colour, center=pick_up_center, radius=draw_radius)
 
         draw_text(self._screen, "Pick-Up", pick_up_center, (0, 0, 0), 16)
 

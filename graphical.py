@@ -109,11 +109,15 @@ class BasePrinter:
         self._cell_width = cell_width
         self._cell_height = cell_height
 
+    def get_upper_left(self, pos: grid.Position) -> Tuple[int, int]:
+        """Computes the upper left corner for a given position."""
+        return pos.x * self._cell_width, pos.y * self._cell_height
+
     def get_cell_center(self, pos: grid.Position) -> Tuple[int, int]:
         """Computes the center pixels for a given position."""
-        left = pos.x * self._cell_width
-        top = pos.y * self._cell_height
-        return (left + self._cell_width // 2, top + self._cell_height // 2)
+        left, top = self.get_upper_left(pos)
+        return left + self._cell_width // 2, top + self._cell_height // 2
+
 
 class CellPrinter(abc.ABC, BasePrinter):
     @abc.abstractmethod
@@ -172,20 +176,25 @@ class PassengerPrinter(BasePrinter):
         self._pick_fn = pick_colour_fn
 
     def print(self, passenger: entity.Passenger):
-        draw_radius = 0.9 * (min(self._cell_height, self._cell_width) // 2)
+        # draw_radius = 0.9 * (min(self._cell_height, self._cell_width) // 2)
         draw_colour = self._pick_fn(passenger)
+        pick_up_center = self.get_cell_center(passenger.pick_up)
+        px_side = int(self._cell_width // 16)
 
         print(passenger.in_trip)
         if passenger.in_trip.WAITING:
-            pick_up_center = self.get_cell_center(passenger.pick_up)
-            pygame.draw.circle(self._screen, draw_colour, center=pick_up_center, radius=draw_radius)
+            pick_up_rect1 = pygame.Rect(pick_up_center[0] - (3 * px_side), pick_up_center[1] - (3 * px_side),
+                                        6 * px_side, 6 * px_side)
+            pick_up_rect2 = pick_up_rect1.copy().inflate(2 * px_side, -2 * px_side)
+            pick_up_rect3 = pick_up_rect1.copy().inflate(-2 * px_side, 2 * px_side)
+            pygame.draw.rect(self._screen, draw_colour, pick_up_rect1)
+            pygame.draw.rect(self._screen, draw_colour, pick_up_rect2)
+            pygame.draw.rect(self._screen, draw_colour, pick_up_rect3)
 
-        draw_text(self._screen, "Pick-Up", pick_up_center, (0, 0, 0), 16)
-
-        drop_off_center = self.get_cell_center(passenger.drop_off)
-        pygame.draw.circle(self._screen, draw_colour, center=drop_off_center, radius=draw_radius)
-
-        draw_text(self._screen, "Drop-Off", drop_off_center, (0, 0, 0), 16)
+        drop_off_upper_left = self.get_upper_left(passenger.drop_off)
+        drop_off_rect = pygame.Rect(drop_off_upper_left[0], drop_off_upper_left[1],
+                                    self._cell_width, self._cell_height)
+        pygame.draw.rect(self._screen, draw_colour, drop_off_rect, 2 * px_side)
 
 
 def draw_text(

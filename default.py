@@ -1,16 +1,19 @@
 import grid
 import numpy as np
- 
 
 MAP = np.array([
-    [grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK],
-    [grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK],
-    [grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.SIDEWALK],
-    [grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK],
-    [grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK],
-    [grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.SIDEWALK],
-    [grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK],
-    [grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK],
-    [grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.ROAD,     grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK],
-    [grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK, grid.Cell.SIDEWALK],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 1],
+    [1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1],
+    [1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ])
+
+MAP = np.where(MAP == 0, grid.Cell.ROAD, grid.Cell.SIDEWALK)

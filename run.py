@@ -5,13 +5,34 @@ import grid
 import graphical
 import pygame
 import time
+import yaml
+
 
 def main():
+
+    with open("./config.yml", "r") as fp:
+        data = yaml.safe_load(fp)
+        
+
+
+    
+    num_agents = data[data["agent_type"]]["nr_agents"]
+    init_passengers = data[data["agent_type"]]["nr_passengers"]
+    
+    if data["agent_type"] == "Random":
+        agents = [agent.Random() for i in range(num_agents)]
+    elif data["agent_type"] == "Deliberative":
+        agents = None
+        #agents = [agent.Deliberative(agent_id=i) for i in range(num_agents)]
+    elif data["agent_type"] == "Greedy":
+        agents = None
+        #agents = [agent.Greedy() for i in range(num_agents)]
+    elif data["agent_type"] == "Debug":
+        agents = [agent.Debug(agent_id=i) for i in range(num_agents)]
+
     map = grid.Map(default.MAP)
-    num_agents = 1
-    agents = [agent.Debug(agent_id=i) for i in range(num_agents)]
     with graphical.EnvironmentPrinter(map.grid) as printer:
-        environment = env.Environment(map=map, init_taxis=num_agents, init_passengers=4, printer=printer)
+        environment = env.Environment(map=map, init_taxis=num_agents, init_passengers=init_passengers, printer=printer)
         running = True
         while running:
             for event in pygame.event.get():

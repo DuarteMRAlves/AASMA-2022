@@ -8,6 +8,8 @@ import grid
 import numpy as np
 import pygame
 
+
+
 from typing import Callable, List, Optional, Tuple
 
 class EnvironmentPrinter(env.Printer):
@@ -173,6 +175,7 @@ class PassengerPrinter(BasePrinter):
         draw_radius = 0.9 * (min(self._cell_height, self._cell_width) // 2)
         draw_colour = self._pick_fn(passenger)
 
+        print(passenger.in_trip)
         if passenger.in_trip.WAITING:
             pick_up_center = self.get_cell_center(passenger.pick_up)
             pygame.draw.circle(self._screen, draw_colour, center=pick_up_center, radius=draw_radius)

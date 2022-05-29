@@ -99,8 +99,8 @@ class Environment:
             elif act == Action.DROP_OFF:
                 taxi.drop_off(self.map)
             log.taxi(self._logger,self._timestep, taxi)
-            for passenger in self.passengers:
-                log.passenger(self._logger, self._timestep, passenger)
+        for passenger in self.passengers:
+            log.passenger(self._logger, self._timestep, passenger)
             
     def render(self):
         self._printer.print(self)

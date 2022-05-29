@@ -1,5 +1,4 @@
 import abc
-from tkinter import Grid
 import colour
 import default
 import entity
@@ -16,7 +15,7 @@ class EnvironmentPrinter(env.Printer):
 
     def __init__(
         self,
-        grid: Grid
+        grid: np.array
     ):
         # Mapping between the passenger Drop-Off location
         # and its colour.
@@ -52,7 +51,10 @@ class EnvironmentPrinter(env.Printer):
 
         # Print taxis
         taxi_printer = TaxiPrinter(
-            screen=self.__screen, cell_width=cell_width, cell_height=cell_height,
+            screen=self.__screen,
+            cell_width=cell_width,
+            cell_height=cell_height,
+            pick_colour_fn=self._pick_passenger_colour
         )
         for t in env.taxis:
             taxi_printer.print(t)
@@ -118,6 +120,10 @@ class BasePrinter:
         left, top = self.get_upper_left(pos)
         return left + self._cell_width // 2, top + self._cell_height // 2
 
+    def get_px_side(self):
+        """Computes the pixelart pixel size."""
+        return int(self._cell_width // 16)
+
 
 class CellPrinter(abc.ABC, BasePrinter):
     @abc.abstractmethod
@@ -143,26 +149,54 @@ class SidewalkPrinter(CellPrinter):
         return pygame.transform.scale(pygame.image.load("Images/passeio.png"), (self._cell_width, self._cell_height))
 
 class TaxiPrinter(BasePrinter):
+    def __init__(
+        self,
+        screen: pygame.Surface,
+        cell_width: int,
+        cell_height: int,
+        pick_colour_fn: Callable[[entity.Passenger], colour.Colour],
+    ):
+        super().__init__(screen=screen, cell_width=cell_width, cell_height=cell_height)
+        self._pick_fn = pick_colour_fn
+
+
     def print(self, taxi: entity.Taxi):
 
         car = pygame.transform.scale(pygame.image.load("Images/taxi.png"), (0.8*self._cell_width, 0.8*self._cell_height))
-        
+
         left = taxi.loc.x * self._cell_width + 0.1 * self._cell_width
         top = taxi.loc.y * self._cell_height + 0.1 * self._cell_height
-        
+
         if taxi.direction == entity.Direction.UP:
-            taxi = pygame.transform.rotate(car, 0)
+            taxi_sprite = pygame.transform.rotate(car, 0)
             
         elif taxi.direction == entity.Direction.DOWN:
-            taxi = pygame.transform.rotate(car , -180)
+            taxi_sprite = pygame.transform.rotate(car, -180)
             
         elif taxi.direction == entity.Direction.LEFT:
-            taxi = pygame.transform.rotate(car, 90)
+            taxi_sprite = pygame.transform.rotate(car, 90)
             
         elif taxi.direction == entity.Direction.RIGHT:
-            taxi = pygame.transform.rotate(car, -90)
-            
-        self._screen.blit(taxi,(left,top))
+            taxi_sprite = pygame.transform.rotate(car, -90)
+
+        if taxi.has_passenger is not None:
+            draw_colour = self._pick_fn(taxi.has_passenger)
+            taxi_center = self.get_cell_center(taxi.loc)
+            px_side = self.get_px_side()
+            x, y = self.get_upper_left(taxi.loc)
+
+            taxi_rect = pygame.Rect(x, y, self._cell_width, self._cell_height)
+            pygame.draw.rect(self._screen, draw_colour, taxi_rect)
+
+            # taxi_rect1 = pygame.Rect(taxi_center[0] - (2 * px_side), taxi_center[1] + px_side, 4 * px_side, 4 * px_side)
+            # taxi_rect2 = taxi_rect1.copy().inflate(2 * px_side, -2 * px_side)
+            # taxi_rect3 = taxi_rect1.copy().inflate(-2 * px_side, 2 * px_side)
+
+            # pygame.draw.rect(self._screen, draw_colour, taxi_rect1)
+            # pygame.draw.rect(self._screen, draw_colour, taxi_rect2)
+            # pygame.draw.rect(self._screen, draw_colour, taxi_rect3)
+
+        self._screen.blit(taxi_sprite, (left, top))
 
 class PassengerPrinter(BasePrinter):
     def __init__(
@@ -179,9 +213,8 @@ class PassengerPrinter(BasePrinter):
         # draw_radius = 0.9 * (min(self._cell_height, self._cell_width) // 2)
         draw_colour = self._pick_fn(passenger)
         pick_up_center = self.get_cell_center(passenger.pick_up)
-        px_side = int(self._cell_width // 16)
+        px_side = self.get_px_side()
 
-        print(passenger.in_trip)
         if passenger.in_trip == entity.TripState.WAITING:
             pick_up_rect1 = pygame.Rect(pick_up_center[0] - (3 * px_side), pick_up_center[1] - (3 * px_side),
                                         6 * px_side, 6 * px_side)
@@ -191,13 +224,11 @@ class PassengerPrinter(BasePrinter):
             pygame.draw.rect(self._screen, draw_colour, pick_up_rect2)
             pygame.draw.rect(self._screen, draw_colour, pick_up_rect3)
 
-
-
-
-        drop_off_upper_left = self.get_upper_left(passenger.drop_off)
-        drop_off_rect = pygame.Rect(drop_off_upper_left[0], drop_off_upper_left[1],
-                                    self._cell_width, self._cell_height)
-        pygame.draw.rect(self._screen, draw_colour, drop_off_rect, 2 * px_side)
+        if passenger.in_trip != entity.TripState.DELETED:
+            drop_off_upper_left = self.get_upper_left(passenger.drop_off)
+            drop_off_rect = pygame.Rect(drop_off_upper_left[0], drop_off_upper_left[1],
+                                        self._cell_width, self._cell_height)
+            pygame.draw.rect(self._screen, draw_colour, drop_off_rect, 2 * px_side)
 
 
 def draw_text(

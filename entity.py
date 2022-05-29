@@ -9,6 +9,7 @@ class TripState(enum.Enum):
     WAITING = 0
     INTRIP = 1
     FINISHED = 2
+    DELETED = 3
 
     def __repr__(self) -> str:
         return f"TripState({self.name})"

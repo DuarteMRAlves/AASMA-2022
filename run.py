@@ -30,6 +30,8 @@ def main():
     map = grid.Map(default.MAP)
     with graphical.EnvironmentPrinter(map.grid) as printer:
         environment = env.Environment(map=map, init_taxis=num_agents, init_passengers=init_passengers, printer=printer)
+        # Initial render to see initial environment.
+        environment.render()
         running = True
         while running:
             for event in pygame.event.get():

@@ -69,5 +69,5 @@ class Taxi:
                 self.has_passenger.in_trip = TripState.FINISHED
             
             self.has_passenger.pick_up = drop_off
-
+            self.has_passenger = None
         return None

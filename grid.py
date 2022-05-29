@@ -142,8 +142,7 @@ class Map:
                
         return None
 
-
-
     def choose_drop_location(self, p: Position) -> Position:
+        print("entrei")
         sidewalks_nearby = self.adj_positions(p, Cell.SIDEWALK)
         return random.choice(sidewalks_nearby)

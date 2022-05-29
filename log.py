@@ -20,3 +20,9 @@ def create_passenger(logger: logging.Logger, t: int, passenger: entity.Passenger
 
 def choosen_action(logger: logging.Logger, t: int, agent: int, action: "env.Action"):
     logger.info("Agent %d wants to %r", agent, action, extra={"timestep": t})
+
+def taxi(logger: logging.Logger, t: int, taxi: entity.Taxi):
+    logger.info("Taxi %r", taxi, extra={"timestep": t})
+
+def passenger(logger: logging.Logger, t: int, passenger: entity.Passenger):
+    logger.info("Passenger %r", passenger, extra={"timestep": t})

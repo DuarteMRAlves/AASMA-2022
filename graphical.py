@@ -182,7 +182,7 @@ class PassengerPrinter(BasePrinter):
         px_side = int(self._cell_width // 16)
 
         print(passenger.in_trip)
-        if passenger.in_trip.WAITING:
+        if passenger.in_trip == entity.TripState.WAITING:
             pick_up_rect1 = pygame.Rect(pick_up_center[0] - (3 * px_side), pick_up_center[1] - (3 * px_side),
                                         6 * px_side, 6 * px_side)
             pick_up_rect2 = pick_up_rect1.copy().inflate(2 * px_side, -2 * px_side)
@@ -190,6 +190,9 @@ class PassengerPrinter(BasePrinter):
             pygame.draw.rect(self._screen, draw_colour, pick_up_rect1)
             pygame.draw.rect(self._screen, draw_colour, pick_up_rect2)
             pygame.draw.rect(self._screen, draw_colour, pick_up_rect3)
+
+
+
 
         drop_off_upper_left = self.get_upper_left(passenger.drop_off)
         drop_off_rect = pygame.Rect(drop_off_upper_left[0], drop_off_upper_left[1],

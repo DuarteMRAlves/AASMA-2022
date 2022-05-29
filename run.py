@@ -39,7 +39,7 @@ def main():
             actions = [a.act() for a in agents]
             environment.step(*actions)
             environment.render()
-            time.sleep(1)
+            #time.sleep(1)
 
 
 if __name__ == "__main__":

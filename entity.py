@@ -61,7 +61,7 @@ class Taxi:
         """
         
         if self.has_passenger != None:
-            drop_off = env_grid.choose_drop_location(self.loc)
+            drop_off = env_grid.choose_drop_location(self.loc, self.has_passenger.drop_off)
 
             if drop_off != self.has_passenger.drop_off:
                 self.has_passenger.in_trip = TripState.WAITING

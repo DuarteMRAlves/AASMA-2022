@@ -65,6 +65,7 @@ class Environment:
         self._logger = log.new(__name__)
         self._timestep = 0
 
+        self.passengers_to_delete = []
         self.taxis = []
         for _ in range(init_taxis):
             self.taxis.append(self._create_taxi())
@@ -99,8 +100,11 @@ class Environment:
             elif act == Action.DROP_OFF:
                 taxi.drop_off(self.map)
             log.taxi(self._logger,self._timestep, taxi)
+
         for passenger in self.passengers:
             log.passenger(self._logger, self._timestep, passenger)
+
+        self._delete_passengers()
             
     def render(self):
         self._printer.print(self)
@@ -186,6 +190,19 @@ class Environment:
         return passenger
 
 
+    def _delete_passengers(self):
+        """
+        Evaluates which passengers are in the corresponding drop-off locations.
+        Deletes these passengers after one time-step.
+        """
+
+        for i in self.passengers_to_delete:
+            del self.passengers[i]
+
+        self.passengers_to_delete = []
+        for i in range(len(self.passengers)):
+            if self.passengers[i].pick_up == self.passengers[i].drop_off:
+                self.passengers_to_delete.append(i)
 
 
 class Printer(abc.ABC):

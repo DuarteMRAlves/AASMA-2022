@@ -181,8 +181,8 @@ class TaxiPrinter(BasePrinter):
 
         if taxi.has_passenger is not None:
             draw_colour = self._pick_fn(taxi.has_passenger)
-            taxi_center = self.get_cell_center(taxi.loc)
-            px_side = self.get_px_side()
+            # taxi_center = self.get_cell_center(taxi.loc)
+            # px_side = self.get_px_side()
             x, y = self.get_upper_left(taxi.loc)
 
             taxi_rect = pygame.Rect(x, y, self._cell_width, self._cell_height)
@@ -191,7 +191,6 @@ class TaxiPrinter(BasePrinter):
             # taxi_rect1 = pygame.Rect(taxi_center[0] - (2 * px_side), taxi_center[1] + px_side, 4 * px_side, 4 * px_side)
             # taxi_rect2 = taxi_rect1.copy().inflate(2 * px_side, -2 * px_side)
             # taxi_rect3 = taxi_rect1.copy().inflate(-2 * px_side, 2 * px_side)
-
             # pygame.draw.rect(self._screen, draw_colour, taxi_rect1)
             # pygame.draw.rect(self._screen, draw_colour, taxi_rect2)
             # pygame.draw.rect(self._screen, draw_colour, taxi_rect3)
@@ -215,7 +214,7 @@ class PassengerPrinter(BasePrinter):
         pick_up_center = self.get_cell_center(passenger.pick_up)
         px_side = self.get_px_side()
 
-        if passenger.in_trip == entity.TripState.WAITING:
+        if passenger.in_trip in [entity.TripState.WAITING, entity.TripState.FINISHED]:
             pick_up_rect1 = pygame.Rect(pick_up_center[0] - (3 * px_side), pick_up_center[1] - (3 * px_side),
                                         6 * px_side, 6 * px_side)
             pick_up_rect2 = pick_up_rect1.copy().inflate(2 * px_side, -2 * px_side)
@@ -224,11 +223,11 @@ class PassengerPrinter(BasePrinter):
             pygame.draw.rect(self._screen, draw_colour, pick_up_rect2)
             pygame.draw.rect(self._screen, draw_colour, pick_up_rect3)
 
-        if passenger.in_trip != entity.TripState.DELETED:
-            drop_off_upper_left = self.get_upper_left(passenger.drop_off)
-            drop_off_rect = pygame.Rect(drop_off_upper_left[0], drop_off_upper_left[1],
-                                        self._cell_width, self._cell_height)
-            pygame.draw.rect(self._screen, draw_colour, drop_off_rect, 2 * px_side)
+
+        drop_off_upper_left = self.get_upper_left(passenger.drop_off)
+        drop_off_rect = pygame.Rect(drop_off_upper_left[0], drop_off_upper_left[1],
+                                    self._cell_width, self._cell_height)
+        pygame.draw.rect(self._screen, draw_colour, drop_off_rect, 2 * px_side)
 
 
 def draw_text(

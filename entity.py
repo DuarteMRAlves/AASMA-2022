@@ -9,7 +9,6 @@ class TripState(enum.Enum):
     WAITING = 0
     INTRIP = 1
     FINISHED = 2
-    DELETED = 3
 
     def __repr__(self) -> str:
         return f"TripState({self.name})"
@@ -68,7 +67,6 @@ class Taxi:
 
             if drop_off != self.has_passenger.drop_off:
                 self.has_passenger.in_trip = TripState.WAITING
-
             else:
                 self.has_passenger.in_trip = TripState.FINISHED
             

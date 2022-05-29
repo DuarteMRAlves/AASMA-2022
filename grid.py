@@ -146,7 +146,7 @@ class Map:
         sidewalks_nearby = self.adj_positions(p, Cell.SIDEWALK)
  
         for sidewalk in sidewalks_nearby:
-            if (sidewalk.x,sidewalk.y) == (passenger_drop_off.x, passenger_drop_off.y):
+            if (sidewalk.x, sidewalk.y) == (passenger_drop_off.x, passenger_drop_off.y):
                 return sidewalk
 
         return random.choice(sidewalks_nearby) if sidewalks_nearby else None

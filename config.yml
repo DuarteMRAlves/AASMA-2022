@@ -1,7 +1,7 @@
 %YAML 1.2
 ---
 
-agent_type: random #Random #Deliberative #A* #Debug
+agent_type: Random #Random #Deliberative #A* #Debug
 
 Random: 
   nr_passengers: 4

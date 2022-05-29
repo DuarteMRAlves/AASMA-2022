@@ -12,10 +12,7 @@ def main():
 
     with open("./config.yml", "r") as fp:
         data = yaml.safe_load(fp)
-        
 
-
-    
     num_agents = data[data["agent_type"]]["nr_agents"]
     init_passengers = data[data["agent_type"]]["nr_passengers"]
     

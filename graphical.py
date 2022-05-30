@@ -88,7 +88,7 @@ class EnvironmentPrinter(env.Printer):
             return self._passenger_colours[drop_off_loc]
 
         new_colour = self._colour_picker.random_not_close(
-            colour.ROAD, colour.SIDEWALK, colour.TAXI, *self._passenger_colours.values(),
+            *colour.ROADS, *colour.SIDEWALKS, *colour.TAXI, *self._passenger_colours.values(),
         )
         self._passenger_colours[drop_off_loc] = new_colour
         return new_colour

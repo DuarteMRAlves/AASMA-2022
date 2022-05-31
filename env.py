@@ -6,7 +6,7 @@ import entity
 import log
 import numpy as np
 
-from typing import List
+from typing import List, Optional
 
 
 @dataclasses.dataclass(frozen=True)
@@ -57,7 +57,14 @@ class Environment:
     taxis: List[entity.Taxi]
 
 
-    def __init__(self, map: grid.Map, init_taxis: int, init_passengers: int, printer: "Printer", seed: int = None):
+    def __init__(
+        self,
+        map: grid.Map,
+        init_taxis: int,
+        init_passengers: int,
+        printer: "Optional[Printer]" = None,
+        seed: Optional[int] = None,
+    ):
         self.map = map
         self._rng = np.random.default_rng(seed=seed)
         self._printer = printer
@@ -107,6 +114,8 @@ class Environment:
         self._delete_passengers()
             
     def render(self):
+        if not self._printer:
+            raise ValueError("Unable to render without printer")
         self._printer.print(self)
 
     def _create_taxi(self) -> entity.Taxi:

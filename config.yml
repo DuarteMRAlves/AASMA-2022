@@ -18,3 +18,5 @@ Greedy:
 Debug:
     nr_passengers: 4
     nr_agents: 1
+
+graphical: True

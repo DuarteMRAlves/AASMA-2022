@@ -1,7 +1,7 @@
 %YAML 1.2
 ---
 
-agent_type: Debug #Random #Deliberative #A* #Debug
+agent_type: PathPlanner #Random #PathPlanner #Deliberative #Debug
 
 Random: 
   nr_passengers: 4
@@ -11,7 +11,7 @@ Deliberative:
     nr_passengers: 4
     nr_agents: 4
 
-Greedy:
+PathPlanner:
   nr_passengers: 4
   nr_agents: 4
 

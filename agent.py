@@ -66,23 +66,81 @@ class Debug(Base):
 
         return action
 
+
+class PathPlanner(Base):
+    """Agent that plans its path using a BFS."""
+
+    def __init__(self, agent_id: int = 0) -> None:
+        super().__init__()
+        self._agent_id = agent_id
+
+    def act(self) -> env.Action:
+        map = self._last_observation.map
+        agent_taxi = self._last_observation.taxis[self._agent_id]
+        passengers = self._last_observation.passengers
+        
+        if agent_taxi.has_passenger is None:
+            return self._pickup_nearest_passenger(map, agent_taxi, passengers)
+        return self._dropoff_current_passenger(map, agent_taxi)
+            
+    def _pickup_nearest_passenger(
+        self, map: grid.Map, agent_taxi: entity.Taxi, passengers: List[entity.Passenger],
+    ) -> env.Action:
+        possible_passengers = [p for p in passengers if p.in_trip == entity.TripState.WAITING]
+        if len(possible_passengers) == 0:
+            return env.Action.STAY
+
+        shortest_paths = [
+            bfs_with_positions(map, agent_taxi.loc, p.pick_up) 
+            for p in possible_passengers
+        ]
+        path_idx = np.argmin([len(p) for p in shortest_paths])
+        return self._move_in_path_and_act(shortest_paths[path_idx], env.Action.PICK_UP)
+
+    def _dropoff_current_passenger(self, map: grid.Map, agent_taxi: entity.Taxi) -> env.Action:
+        passenger = agent_taxi.has_passenger
+        shortest_path = bfs_with_positions(map, agent_taxi.loc, passenger.drop_off)
+        return self._move_in_path_and_act(shortest_path, env.Action.DROP_OFF)
+
+    def _move_in_path_and_act(self, path: List[grid.Position], last_action: env.Action) -> env.Action:
+        if len(path) == 1:
+            return last_action
+        curr_pos = path[0]
+        next_pos = path[1]
+        if next_pos == curr_pos.up:
+            return env.Action.UP
+        elif next_pos == curr_pos.down:
+            return env.Action.DOWN
+        elif next_pos == curr_pos.left:
+            return env.Action.LEFT
+        elif next_pos == curr_pos.right:
+            return env.Action.RIGHT
+        else:
+            raise ValueError(
+                f"Unknown adj direction: (curr_pos: {curr_pos}, next_pos: {next_pos})"
+            )
+
+
 def bfs_with_positions(
     map: grid.Map, source: grid.Position, target: grid.Position,
 ) -> List[grid.Position]:
     """Computes the list of positions in the path from source to target.
     
     It uses a BFS so the path is the shortest path."""
-    queue = [(source, None)]
+    
+    # The queue stores tuple with the nodes to explore
+    # and the path taken to the node.
+    queue = [(source, (source,))]
+    # Visited stores already explored positions to avoid
+    # loops.
+    visited = set()
     while len(queue) > 0:
-        curr, parent = queue.pop(0)
-        if curr == target:
-            path = [curr]
-            while parent is not None:
-                parent_position, parent_parent = parent
-                path.append(parent_position)
-                parent = parent_parent
-            return path.reverse()
+        curr, curr_path = queue.pop(0)
+        if curr in target.adj:
+            return list(curr_path)
         for neighbour in curr.adj:
-            if neighbour != parent and map.is_road(neighbour):
-                queue.extend((neighbour, curr))
+            if neighbour not in visited and map.is_road(neighbour):
+                neighbour_path = curr_path + (neighbour,)
+                queue.append((neighbour, neighbour_path))
+                visited.add(neighbour)
     raise ValueError("No path found")

@@ -20,10 +20,9 @@ class Observation:
         passengers: Pick-Up and Drop-Off locations for the passengers.
     """
 
-    loc: grid.Position
-    has_passenger: bool
-    taxis: grid.Position
-    passengers: entity.Passenger
+    map: grid.Map
+    taxis: List[entity.Taxi]
+    passengers: List[entity.Passenger]
 
 class Action(enum.Enum):
     """Specifies possible actions the taxis can perform."""
@@ -70,16 +69,13 @@ class Environment:
         self._printer = printer
 
         self._logger = log.new(__name__)
-        self._timestep = 0
+        self._init_taxis = init_taxis
+        self._init_passengers = init_passengers
 
-        self.passengers_to_delete = []
-        self.taxis = []
-        for _ in range(init_taxis):
-            self.taxis.append(self._create_taxi())
-
-        self.passengers = []
-        for _ in range(init_passengers):
-            self.passengers.append(self._create_passenger())
+    def reset(self) -> List[Observation]:
+        self._reset()
+        observation = Observation(map=self.map, taxis=self.taxis, passengers=self.passengers)
+        return [observation for _ in range(len(self.taxis))]
 
     def step(self, *actions: Action) -> List[Observation]:
         """Performs an environment step.
@@ -98,7 +94,7 @@ class Environment:
         for i, act in enumerate(actions):
             log.choosen_action(self._logger, self._timestep, i, act)
 
-        # Move taxis
+        # Perform agent actions
         for taxi, act in zip(self.taxis, actions):
             if act in (Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT):
                 self._move_taxi(taxi, act)
@@ -106,17 +102,37 @@ class Environment:
                 taxi.pickup_up(self.passengers, self.map)
             elif act == Action.DROP_OFF:
                 taxi.drop_off(self.map)
+            elif act == Action.STAY:
+                # Do nothing
+                pass
+            else:
+                raise ValueError(f"Unknown action: {act}")
             log.taxi(self._logger,self._timestep, taxi)
 
         for passenger in self.passengers:
             log.passenger(self._logger, self._timestep, passenger)
 
         self._delete_passengers()
+
+        observation = Observation(map=self.map, taxis=self.taxis, passengers=self.passengers)
+        return [observation for _ in range(len(actions))]
             
     def render(self):
         if not self._printer:
             raise ValueError("Unable to render without printer")
         self._printer.print(self)
+
+    def _reset(self):
+        self._timestep = 0
+
+        self.passengers_to_delete = []
+        self.taxis = []
+        for _ in range(self._init_taxis):
+            self.taxis.append(self._create_taxi())
+
+        self.passengers = []
+        for _ in range(self._init_passengers):
+            self.passengers.append(self._create_passenger())
 
     def _create_taxi(self) -> entity.Taxi:
         """Creates a taxi with a random location and direction.

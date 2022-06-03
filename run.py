@@ -13,6 +13,7 @@ def run_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int)
     with graphical.EnvironmentPrinter(map.grid) as printer:
         environment = env.Environment(map=map, init_taxis=len(agents), init_passengers=init_passengers, printer=printer)
         # Initial render to see initial environment.
+        observations = environment.reset()
         environment.render()
         running = True
         while running:
@@ -20,8 +21,11 @@ def run_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int)
                 if event.type == pygame.QUIT:
                     running = False
 
+            for observations, agent in zip(observations, agents):
+                agent.see(observations)
+
             actions = [a.act() for a in agents]
-            environment.step(*actions)
+            observations = environment.step(*actions)
             environment.render()
             #time.sleep(1)
 
@@ -47,9 +51,8 @@ def main():
     elif data["agent_type"] == "Deliberative":
         agents = None
         #agents = [agent.Deliberative(agent_id=i) for i in range(num_agents)]
-    elif data["agent_type"] == "Greedy":
-        agents = None
-        #agents = [agent.Greedy() for i in range(num_agents)]
+    elif data["agent_type"] == "PathPlanner":
+        agents = [agent.PathPlanner(agent_id=i) for i in range(num_agents)]
     elif data["agent_type"] == "Debug":
         agents = [agent.Debug(agent_id=i) for i in range(num_agents)]
 

@@ -6,7 +6,7 @@ import entity
 import log
 import numpy as np
 
-from typing import List
+from typing import List, Optional
 
 
 @dataclasses.dataclass(frozen=True)
@@ -28,22 +28,25 @@ class Observation:
 class Action(enum.Enum):
     """Specifies possible actions the taxis can perform."""
 
-    MOVE = 0
-    """Moves the taxi forward."""
+    UP = 0
+    """Moves the taxi up."""
 
-    ROT_R = 1
-    """Rotates the taxi 90 degrees to the right."""
+    DOWN = 1
+    """Moves the taxi down."""
 
-    ROT_L = 2
-    """Rotates the taxi 90 degrees to the left."""
+    LEFT = 2
+    """Moves the taxi to the left."""
 
-    STAY = 3
+    RIGHT = 3
+    """Moves the taxi to the right."""
+
+    STAY = 4
     """Stays in the same position."""
 
-    PICK_UP = 4
+    PICK_UP = 5
     """Picks up an adjacent passenger."""
 
-    DROP_OFF = 5
+    DROP_OFF = 6
     """Drops off a passenger in an adjacent cell."""
 
     def __repr__(self) -> str:
@@ -54,7 +57,14 @@ class Environment:
     taxis: List[entity.Taxi]
 
 
-    def __init__(self, map: grid.Map, init_taxis: int, init_passengers: int, printer: "Printer", seed: int = None):
+    def __init__(
+        self,
+        map: grid.Map,
+        init_taxis: int,
+        init_passengers: int,
+        printer: "Optional[Printer]" = None,
+        seed: Optional[int] = None,
+    ):
         self.map = map
         self._rng = np.random.default_rng(seed=seed)
         self._printer = printer
@@ -62,6 +72,7 @@ class Environment:
         self._logger = log.new(__name__)
         self._timestep = 0
 
+        self.passengers_to_delete = []
         self.taxis = []
         for _ in range(init_taxis):
             self.taxis.append(self._create_taxi())
@@ -89,16 +100,22 @@ class Environment:
 
         # Move taxis
         for taxi, act in zip(self.taxis, actions):
-            # FIXME: Does not check bounds. 
-            # FIXME: We must decide the behaviour for this case.
-            if act == Action.MOVE:
-                self._move_taxi(taxi)
-            elif act == Action.ROT_R:
-                taxi.rot_r()
-            elif act == Action.ROT_L:
-                taxi.rot_l()
+            if act in (Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT):
+                self._move_taxi(taxi, act)
+            elif act == Action.PICK_UP:
+                taxi.pickup_up(self.passengers, self.map)
+            elif act == Action.DROP_OFF:
+                taxi.drop_off(self.map)
+            log.taxi(self._logger,self._timestep, taxi)
 
+        for passenger in self.passengers:
+            log.passenger(self._logger, self._timestep, passenger)
+
+        self._delete_passengers()
+            
     def render(self):
+        if not self._printer:
+            raise ValueError("Unable to render without printer")
         self._printer.print(self)
 
     def _create_taxi(self) -> entity.Taxi:
@@ -129,22 +146,29 @@ class Environment:
         log.create_taxi(self._logger, self._timestep, taxi)
         return taxi
 
-    def _move_taxi(self, taxi: entity.Taxi):
-        """Move a taxi while checking for sidewalks."""
-        if taxi.direction == entity.Direction.UP:
+    def _move_taxi(self, taxi: entity.Taxi, action: Action):
+        """Move a taxi according to an action while checking for sidewalks."""
+        if action == Action.UP:
             target_loc = taxi.loc.up
-        elif taxi.direction == entity.Direction.DOWN:
+            target_dir = entity.Direction.UP
+        elif action == Action.DOWN:
             target_loc = taxi.loc.down
-        elif taxi.direction == entity.Direction.RIGHT:
+            target_dir = entity.Direction.DOWN
+        elif action == Action.RIGHT:
             target_loc = taxi.loc.right
-        elif taxi.direction == entity.Direction.LEFT:
+            target_dir = entity.Direction.RIGHT
+        elif action == Action.LEFT:
             target_loc = taxi.loc.left
+            target_dir = entity.Direction.LEFT
         else:
             raise ValueError(f"Unknown direction in taxi movement {self.direction}")
         # Do not move if the target location is not a road.
+        # However we still update target dir to "show" the
+        # taxi went into a sidewalk.
         if not self.map.is_road(target_loc):
             target_loc = taxi.loc
         taxi.loc = target_loc
+        taxi.direction = target_dir
 
     def _create_passenger(self):
         """Creates a passenger with random Pick-Up and Drop-Off locations.
@@ -163,6 +187,8 @@ class Environment:
             for p in self.map.possible_passenger_positions 
             if p not in occupied_locations
         ]
+
+        
         if len(possible_passenger_locations) < 2:
             raise ValueError("Unable to create passenger: Not enough free locations.")
         pick_up_loc = self._rng.choice(possible_passenger_locations)
@@ -171,6 +197,21 @@ class Environment:
         passenger = entity.Passenger(pick_up=pick_up_loc, drop_off=drop_off_loc)
         log.create_passenger(self._logger, self._timestep, passenger)
         return passenger
+
+
+    def _delete_passengers(self):
+        """
+        Evaluates which passengers are in the corresponding drop-off locations.
+        Deletes these passengers after one time-step.
+        """
+
+        for i in self.passengers_to_delete:
+            del self.passengers[i]
+
+        self.passengers_to_delete = []
+        for i in range(len(self.passengers)):
+            if self.passengers[i].pick_up == self.passengers[i].drop_off:
+                self.passengers_to_delete.append(i)
 
 
 class Printer(abc.ABC):

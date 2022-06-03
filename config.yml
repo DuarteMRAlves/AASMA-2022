@@ -1,0 +1,22 @@
+%YAML 1.2
+---
+
+agent_type: Debug #Random #Deliberative #A* #Debug
+
+Random: 
+  nr_passengers: 4
+  nr_agents: 4
+
+Deliberative:
+    nr_passengers: 4
+    nr_agents: 4
+
+Greedy:
+  nr_passengers: 4
+  nr_agents: 4
+
+Debug:
+    nr_passengers: 4
+    nr_agents: 1
+
+graphical: True

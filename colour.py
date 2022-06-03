@@ -1,12 +1,12 @@
 import numpy as np
 
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 Colour = Tuple[int, int, int]
 
-ROAD: Colour = (75, 75, 75)
-SIDEWALK: Colour = (50, 100, 50)
-TAXI: Colour = (207, 191, 56)
+ROADS: List[Colour] = [(58, 68, 102), (38, 43, 68)]
+SIDEWALKS: List[Colour] = [(228, 166, 114), (216, 118, 68), (190, 74, 47)]
+TAXI: List[Colour] = [(254, 231, 97)]
 
 class Picker:
     def __init__(self, seed: Optional[int] = None) -> None:
@@ -34,6 +34,8 @@ class Picker:
         return tuple(self._rng.choice(self._choices, size=3))
 
 
-def are_similar(a: Colour, b: Colour, tol: int = 30) -> bool:
+def are_similar(a: Colour, b: Colour, tol: int = 50) -> bool:
     """Verifies if two colours are similar."""
-    return np.allclose(a, b, atol=tol)
+    a = np.array(a)
+    b = np.array(b)
+    return np.all(np.abs(a - b) <= tol)

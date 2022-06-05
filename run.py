@@ -6,6 +6,7 @@ import graphical
 import pygame
 import yaml
 
+
 from typing import List
 
 
@@ -32,18 +33,23 @@ def run_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int)
 
             #time.sleep(1)
 
+    return environment.taxis
+
+
 def run_not_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int):
     environment = env.Environment(map=map, init_taxis=len(agents), init_passengers=init_passengers)
 
     running = True
     while running:
         actions = [a.act() for a in agents]
-        obseravtions, terminal = environment.step(*actions)
+        observations, terminal = environment.step(*actions)
         if terminal:
             break
         #time.sleep(1)
+    return environment.taxis
 
 def main():
+
 
     with open("./config.yml", "r") as fp:
         data = yaml.safe_load(fp)
@@ -61,15 +67,24 @@ def main():
     elif data["agent_type"] == "Debug":
         agents = [agent.Debug(agent_id=i) for i in range(num_agents)]
 
+
     map = grid.Map(default.MAP)
 
     run_with_graphics = data["graphical"]
     if run_with_graphics:
-        run_graphical(map, agents, init_passengers)
+        taxis = run_graphical(map, agents, init_passengers)
     else:
-        run_not_graphical(map, agents, init_passengers)
-        
-    
+        taxis = run_not_graphical(map, agents, init_passengers)
+
+    f = open("metrics.txt", "a")
+
+    f.write("---------------- " + data["agent_type"] + " ----------------\n")
+    f.write("Taxis: \n")
+    for taxi in taxis:
+        f.write(str(taxi.total_distance) + "\n" )
+    f.close()
+
+
 
 if __name__ == "__main__":
     main()

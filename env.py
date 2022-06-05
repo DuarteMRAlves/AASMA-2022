@@ -233,6 +233,9 @@ class Environment:
         for i in range(len(self.passengers)):
             if self.passengers[i].pick_up != self.passengers[i].drop_off:
                 self.passengers_travelling.append(i)
+            else:
+                pass
+                # TODO: adiciona ao ficheiro as metricas do passageiro
 
 
 class Printer(abc.ABC):

@@ -54,7 +54,7 @@ class Action(enum.Enum):
 class Environment:
 
     taxis: List[entity.Taxi]
-
+    final_passengers: List[List[int]]
 
     def __init__(
         self,
@@ -111,8 +111,14 @@ class Environment:
                 raise ValueError(f"Unknown action: {act}")            
             log.taxi(self._logger,self._timestep, taxi)
 
+
         for passenger in self.passengers:
             log.passenger(self._logger, self._timestep, passenger)
+            
+            if passenger.in_trip == entity.TripState.WAITING:
+                passenger.pick_up_time += 1
+            elif passenger.in_trip == entity.TripState.INTRIP:
+                passenger.travel_time += 1
 
         self._delete_passengers()
         observation = Observation(map=self.map, taxis=self.taxis, passengers=self.passengers)
@@ -131,6 +137,8 @@ class Environment:
         self.terminal = False
 
         self.taxis = []
+        self.final_passengers = []
+
         for _ in range(self._init_taxis):
             self.taxis.append(self._create_taxi())
 
@@ -234,8 +242,7 @@ class Environment:
             if self.passengers[i].pick_up != self.passengers[i].drop_off:
                 self.passengers_travelling.append(i)
             else:
-                pass
-                # TODO: adiciona ao ficheiro as metricas do passageiro
+                self.final_passengers += [[self.passengers[i].pick_up_time, self.passengers[i].travel_time]]
 
 
 class Printer(abc.ABC):

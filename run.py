@@ -9,6 +9,8 @@ import yaml
 
 from typing import List
 
+from log import passenger
+
 
 def run_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int):
     with graphical.EnvironmentPrinter(map.grid) as printer:
@@ -17,6 +19,7 @@ def run_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int)
         observations = environment.reset()
         environment.render()
         running = True
+        n_steps = 0
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -27,13 +30,14 @@ def run_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int)
 
             actions = [a.act() for a in agents]
             observations, terminal = environment.step(*actions)
+            n_steps += 1
             environment.render()
             if terminal:
                 break
 
             #time.sleep(1)
 
-    return environment.taxis
+    return environment.taxis, environment.final_passengers, n_steps
 
 
 def run_not_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int):
@@ -43,10 +47,11 @@ def run_not_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: 
     while running:
         actions = [a.act() for a in agents]
         observations, terminal = environment.step(*actions)
+        n_steps += 1
         if terminal:
             break
         #time.sleep(1)
-    return environment.taxis
+    return environment.taxis, environment.final_passengers, n_steps
 
 def main():
 
@@ -72,17 +77,26 @@ def main():
 
     run_with_graphics = data["graphical"]
     if run_with_graphics:
-        taxis = run_graphical(map, agents, init_passengers)
+        taxis, passengers, n_steps = run_graphical(map, agents, init_passengers)
     else:
-        taxis = run_not_graphical(map, agents, init_passengers)
+        taxis, passengers, n_steps = run_not_graphical(map, agents, init_passengers)
 
-    f = open("metrics.txt", "a")
+    metrics = open("metrics.txt", "a")
 
-    f.write("---------------- " + data["agent_type"] + " ----------------\n")
-    f.write("Taxis: \n")
+    metrics.write("---------------- " + data["agent_type"] + " Nº Agents: " + str(num_agents) + " Nº Passageiros: " + str(init_passengers) + " ----------------\n")
+    metrics.write("Passengers: \n")
+    
+    for passenger in passengers:
+        metrics.write(str(passenger[0]) + " " + str(passenger[1]) + "\n" )
+
+
+    metrics.write("Taxis: \n")
     for taxi in taxis:
-        f.write(str(taxi.total_distance) + "\n" )
-    f.close()
+        metrics.write(str(taxi.total_distance) + "\n" )
+
+    metrics.write("Total number of steps: \n" + str(n_steps) + "\n")
+
+    metrics.close()
 
 
 

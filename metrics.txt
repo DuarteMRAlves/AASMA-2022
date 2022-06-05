@@ -1,14 +1,50 @@
----------------- PathPlanner ----------------
+---------------- PathPlanner Nº Agents: 4 Nº Passageiros: 4 ----------------
+Passengers: 
+3 3
+2 9
+4 11
+16 9
 Taxis: 
-17
-13
-19
-13
----------------------------------------------
----------------- PathPlanner ----------------
+22
+14
+16
+15
+Total number of steps: 
+27---------------- PathPlanner Nº Agents: 4 Nº Passageiros: 4 ----------------
+Passengers: 
+1 3
+2 4
+4 11
+8 11
+Taxis: 
+14
+16
+8
+7
+Total number of steps: 
+21---------------- PathPlanner Nº Agents: 4 Nº Passageiros: 4 ----------------
+Passengers: 
+9 1
+2 10
+3 11
+7 9
 Taxis: 
 13
-12
-12
+9
+15
 11
----------------------------------------------
+Total number of steps: 
+18
+---------------- PathPlanner Nº Agents: 4 Nº Passageiros: 4 ----------------
+Passengers: 
+3 3
+5 6
+3 9
+8 12
+Taxis: 
+10
+19
+7
+11
+Total number of steps: 
+22

@@ -115,7 +115,7 @@ class Environment:
         self._delete_passengers()
         observation = Observation(map=self.map, taxis=self.taxis, passengers=self.passengers)
 
-        self.terminal = len(self.passengers) == 1
+        self.terminal = len(self.passengers) == 0
 
         return [observation for _ in range(len(actions))], self.terminal
             

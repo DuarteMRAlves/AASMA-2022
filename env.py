@@ -113,9 +113,11 @@ class Environment:
             log.passenger(self._logger, self._timestep, passenger)
 
         self._delete_passengers()
-
         observation = Observation(map=self.map, taxis=self.taxis, passengers=self.passengers)
-        return [observation for _ in range(len(actions))]
+
+        self.terminal = len(self.passengers) == 1
+
+        return [observation for _ in range(len(actions))], self.terminal
             
     def render(self):
         if not self._printer:
@@ -124,8 +126,8 @@ class Environment:
 
     def _reset(self):
         self._timestep = 0
+        self.terminal = False
 
-        self.passengers_to_delete = []
         self.taxis = []
         for _ in range(self._init_taxis):
             self.taxis.append(self._create_taxi())
@@ -133,6 +135,8 @@ class Environment:
         self.passengers = []
         for _ in range(self._init_passengers):
             self.passengers.append(self._create_passenger())
+
+        self.passengers_travelling = [i for i in range(len(self.passengers))]
 
     def _create_taxi(self) -> entity.Taxi:
         """Creates a taxi with a random location and direction.
@@ -221,13 +225,12 @@ class Environment:
         Deletes these passengers after one time-step.
         """
 
-        for i in self.passengers_to_delete:
-            del self.passengers[i]
+        self.passengers = [self.passengers[i] for i in self.passengers_travelling]
 
-        self.passengers_to_delete = []
+        self.passengers_travelling = []
         for i in range(len(self.passengers)):
-            if self.passengers[i].pick_up == self.passengers[i].drop_off:
-                self.passengers_to_delete.append(i)
+            if self.passengers[i].pick_up != self.passengers[i].drop_off:
+                self.passengers_travelling.append(i)
 
 
 class Printer(abc.ABC):

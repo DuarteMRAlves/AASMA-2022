@@ -25,8 +25,11 @@ def run_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int)
                 agent.see(observations)
 
             actions = [a.act() for a in agents]
-            observations = environment.step(*actions)
+            observations, terminal = environment.step(*actions)
             environment.render()
+            if terminal:
+                break
+
             #time.sleep(1)
 
 def run_not_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int):
@@ -35,7 +38,9 @@ def run_not_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: 
     running = True
     while running:
         actions = [a.act() for a in agents]
-        environment.step(*actions)
+        obseravtions, terminal = environment.step(*actions)
+        if terminal:
+            break
         #time.sleep(1)
 
 def main():

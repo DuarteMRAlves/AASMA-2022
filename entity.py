@@ -41,6 +41,10 @@ class Taxi:
     #has_passenger: bool = False
     has_passenger: Passenger = None
         
+
+    # Taxi Metrics
+    total_distance: int = 0
+
     def pickup_up(self, passengers: list, env_grid: grid.Map):
         """
         Picks-Up Passenger from a location if near him

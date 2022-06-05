@@ -98,6 +98,8 @@ class Environment:
         for taxi, act in zip(self.taxis, actions):
             if act in (Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT):
                 self._move_taxi(taxi, act)
+                taxi.total_distance += 1
+
             elif act == Action.PICK_UP:
                 taxi.pickup_up(self.passengers, self.map)
             elif act == Action.DROP_OFF:
@@ -106,7 +108,7 @@ class Environment:
                 # Do nothing
                 pass
             else:
-                raise ValueError(f"Unknown action: {act}")
+                raise ValueError(f"Unknown action: {act}")            
             log.taxi(self._logger,self._timestep, taxi)
 
         for passenger in self.passengers:

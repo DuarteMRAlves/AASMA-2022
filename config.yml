@@ -1,6 +1,12 @@
 %YAML 1.2
 ---
 
+# Runs Graphical Interface
+
+graphical: True
+
+# Agents Properties
+
 agent_type: PathPlanner #Random #PathPlanner #Deliberative #Debug
 
 Random: 
@@ -19,4 +25,3 @@ Debug:
     nr_passengers: 4
     nr_agents: 1
 
-graphical: True

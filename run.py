@@ -63,7 +63,8 @@ def main():
         run_graphical(map, agents, init_passengers)
     else:
         run_not_graphical(map, agents, init_passengers)
-
+        
+    
 
 if __name__ == "__main__":
     main()

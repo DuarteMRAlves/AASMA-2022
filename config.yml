@@ -1,9 +1,13 @@
 %YAML 1.2
 ---
 
+n_runs: 1000
+
 # Runs Graphical Interface
 
-graphical: True
+graphical: False
+
+log_level: warning
 
 # Agents Properties
 

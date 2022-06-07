@@ -3,18 +3,20 @@ import env
 import default
 import grid
 import graphical
+import numpy as np
 import pygame
 import yaml
+import tqdm
 
 
 from typing import List
 
-from log import passenger
 
-
-def run_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int):
+def run_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int, log_level: str):
     with graphical.EnvironmentPrinter(map.grid) as printer:
-        environment = env.Environment(map=map, init_taxis=len(agents), init_passengers=init_passengers, printer=printer)
+        environment = env.Environment(
+            map=map, init_taxis=len(agents), init_passengers=init_passengers, printer=printer, log_level=log_level,
+        )
         # Initial render to see initial environment.
         observations = environment.reset()
         environment.render()
@@ -40,11 +42,19 @@ def run_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int)
     return environment.taxis, environment.final_passengers, n_steps
 
 
-def run_not_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int):
-    environment = env.Environment(map=map, init_taxis=len(agents), init_passengers=init_passengers)
+def run_not_graphical(map: grid.Map, agents: List[agent.Base], init_passengers: int, log_level: str):
+    environment = env.Environment(
+        map=map, init_taxis=len(agents), init_passengers=init_passengers, log_level=log_level,
+    )
 
+    observations = environment.reset()
     running = True
+    n_steps = 0
     while running:
+        
+        for observations, agent in zip(observations, agents):
+            agent.see(observations)
+        
         actions = [a.act() for a in agents]
         observations, terminal = environment.step(*actions)
         n_steps += 1
@@ -76,27 +86,36 @@ def main():
     map = grid.Map(default.MAP)
 
     run_with_graphics = data["graphical"]
-    if run_with_graphics:
-        taxis, passengers, n_steps = run_graphical(map, agents, init_passengers)
-    else:
-        taxis, passengers, n_steps = run_not_graphical(map, agents, init_passengers)
+    log_level = data["log_level"]
+    n_runs = data["n_runs"]
 
-    metrics = open("metrics.txt", "a")
+    taxis_distances = []
+    pick_up_times = []
+    drop_off_times = []
+    all_n_steps = []
 
-    metrics.write("---------------- " + data["agent_type"] + " Nº Agents: " + str(num_agents) + " Nº Passageiros: " + str(init_passengers) + " ----------------\n")
-    metrics.write("Passengers: \n")
-    
-    for passenger in passengers:
-        metrics.write(str(passenger[0]) + " " + str(passenger[1]) + "\n" )
+    for _ in tqdm.trange(n_runs):
 
+        if run_with_graphics:
+            taxis, passengers, n_steps = run_graphical(map, agents, init_passengers, log_level)
+        else:
+            taxis, passengers, n_steps = run_not_graphical(map, agents, init_passengers, log_level)
 
-    metrics.write("Taxis: \n")
-    for taxi in taxis:
-        metrics.write(str(taxi.total_distance) + "\n" )
+        avg_taxi_distance = np.mean([taxi.total_distance for taxi in taxis])
+        avg_pick_up = np.mean([p[0] for p in passengers])
+        avg_drop_off = np.mean([p[1] for p in passengers])
 
-    metrics.write("Total number of steps: \n" + str(n_steps) + "\n")
+        taxis_distances.append(avg_taxi_distance)
+        pick_up_times.append(avg_pick_up)
+        drop_off_times.append(avg_drop_off)
+        all_n_steps.append(n_steps)
 
-    metrics.close()
+    # Stores each run in the following format
+    # n_agents, n_passengers, avg_taxi_distance, avg_pick_up_time, avg_drop_off_time, avg_n_steps
+    with open(f"metrics-{data['agent_type']}-agents-{num_agents}-passengers-{init_passengers}.csv", "w") as metrics:
+        metrics.write("taxi_distance,pick_up_time,drop_off_time,n_steps\n")
+        for t, p, d, n in zip(taxis_distances, pick_up_times, drop_off_times, all_n_steps):
+            metrics.write(f"{t},{p},{d},{n}\n")
 
 
 

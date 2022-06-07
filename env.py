@@ -62,13 +62,14 @@ class Environment:
         init_taxis: int,
         init_passengers: int,
         printer: "Optional[Printer]" = None,
+        log_level: Optional[str] = "info",
         seed: Optional[int] = None,
     ):
         self.map = map
         self._rng = np.random.default_rng(seed=seed)
         self._printer = printer
 
-        self._logger = log.new(__name__)
+        self._logger = log.new(__name__, lvl=log_level)
         self._init_taxis = init_taxis
         self._init_passengers = init_passengers
 

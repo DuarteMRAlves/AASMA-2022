@@ -74,11 +74,12 @@ def main():
     
     if data["agent_type"] == "Random":
         agents = [agent.Random() for i in range(num_agents)]
-    elif data["agent_type"] == "Deliberative":
-        agents = None
-        #agents = [agent.Deliberative(agent_id=i) for i in range(num_agents)]
     elif data["agent_type"] == "PathPlanner":
         agents = [agent.PathPlanner(agent_id=i) for i in range(num_agents)]
+    elif data["agent_type"] == "QuadrantsSocialConventions":
+        agents = [agent.QuadrantsSocialConventions(agent_id=i) for i in range(num_agents)]
+    elif data["agent_type"] == "Roles":
+        agents = [agent.Roles(agent_id=i) for i in range(num_agents)]
     elif data["agent_type"] == "Debug":
         agents = [agent.Debug(agent_id=i) for i in range(num_agents)]
 
@@ -94,8 +95,12 @@ def main():
     drop_off_times = []
     all_n_steps = []
 
-    for _ in tqdm.trange(n_runs):
-
+    if run_with_graphics:
+        iterable = range(n_runs)
+    else:
+        iterable = tqdm.tqdm(range(n_runs))
+    
+    for _ in iterable:
         if run_with_graphics:
             taxis, passengers, n_steps = run_graphical(map, agents, init_passengers, log_level)
         else:

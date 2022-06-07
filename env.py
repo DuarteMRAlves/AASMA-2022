@@ -140,8 +140,8 @@ class Environment:
         self.taxis = []
         self.final_passengers = []
 
-        for _ in range(self._init_taxis):
-            self.taxis.append(self._create_taxi())
+        for i in range(self._init_taxis):
+            self.taxis.append(self._create_taxi(i))
 
         self.passengers = []
         for _ in range(self._init_passengers):
@@ -149,7 +149,7 @@ class Environment:
 
         self.passengers_travelling = [i for i in range(len(self.passengers))]
 
-    def _create_taxi(self) -> entity.Taxi:
+    def _create_taxi(self, id: int) -> entity.Taxi:
         """Creates a taxi with a random location and direction.
         
         The taxi initial location will not overlap with another taxi."""
@@ -173,7 +173,7 @@ class Environment:
             entity.Direction.RIGHT,
         ]
         direction = self._rng.choice(possible_taxi_directions)
-        taxi = entity.Taxi(loc=loc, direction=direction)
+        taxi = entity.Taxi(loc=loc, direction=direction, id=id)
         log.create_taxi(self._logger, self._timestep, taxi)
         return taxi
 

@@ -42,7 +42,9 @@ class Taxi:
     direction: Direction 
     #has_passenger: bool = False
     has_passenger: Passenger = None
-        
+
+    # Id for agent identification
+    id: int = 0        
 
     # Taxi Metrics
     total_distance: int = 0

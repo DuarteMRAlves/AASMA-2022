@@ -197,6 +197,9 @@ class TaxiPrinter(BasePrinter):
 
         self._screen.blit(taxi_sprite, (left, top))
 
+        taxi_center = self.get_cell_center(taxi.loc)
+        draw_text(self._screen, f"{taxi.id}", taxi_center, (0, 0, 0), 18, bold=True)
+
 class PassengerPrinter(BasePrinter):
     def __init__(
         self, 

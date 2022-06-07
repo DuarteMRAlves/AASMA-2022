@@ -20,7 +20,8 @@ class Passenger:
     drop_off: grid.Position
     in_trip : TripState = TripState.WAITING
     
-
+    # Id for agent identification
+    id: int = 0        
     
     # Passenger metrics
     pick_up_time: int = 0

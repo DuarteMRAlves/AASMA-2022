@@ -144,8 +144,8 @@ class Environment:
             self.taxis.append(self._create_taxi(i))
 
         self.passengers = []
-        for _ in range(self._init_passengers):
-            self.passengers.append(self._create_passenger())
+        for i in range(self._init_passengers):
+            self.passengers.append(self._create_passenger(i))
 
         self.passengers_travelling = [i for i in range(len(self.passengers))]
 
@@ -201,7 +201,7 @@ class Environment:
         taxi.loc = target_loc
         taxi.direction = target_dir
 
-    def _create_passenger(self):
+    def _create_passenger(self, id: int):
         """Creates a passenger with random Pick-Up and Drop-Off locations.
         
         Both the passenger locations will not overlap with other passsenger
@@ -225,7 +225,7 @@ class Environment:
         pick_up_loc = self._rng.choice(possible_passenger_locations)
         possible_passenger_locations.remove(pick_up_loc)
         drop_off_loc = self._rng.choice(possible_passenger_locations)
-        passenger = entity.Passenger(pick_up=pick_up_loc, drop_off=drop_off_loc)
+        passenger = entity.Passenger(pick_up=pick_up_loc, drop_off=drop_off_loc, id=id)
         log.create_passenger(self._logger, self._timestep, passenger)
         return passenger
 

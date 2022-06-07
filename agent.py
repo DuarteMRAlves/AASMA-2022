@@ -169,6 +169,34 @@ class QuadrantsSocialConventions(PathBased):
     def _is_fourth_quadrant(self, map: grid.Map, pos: grid.Position):
         return pos.x >= map.width // 2 and pos.y >= map.height // 2
 
+
+class IDsSocialConventions(PathBased):
+    """Agent that uses social conventions to attribute passengers by using their ID.
+    
+    Each agent picks up a passenger as follows:
+    
+    """
+
+    def __init__(self, agent_id: int = 0) -> None:
+        super().__init__()
+        self._agent_id = agent_id
+
+    def act(self) -> env.Action:
+        map = self._last_observation.map
+        agent_taxi = self._last_observation.taxis[self._agent_id]
+        nr_agents = len(self._last_observation.taxis)
+        passengers = self._last_observation.passengers
+        
+        if agent_taxi.has_passenger is None:
+            
+            passengers = [
+                p for p in passengers
+                if (p.id % nr_agents) == self._agent_id and p.in_trip == entity.TripState.WAITING
+            ]
+            return self._pickup_nearest_passenger(map, agent_taxi, passengers)
+        return self._dropoff_current_passenger(map, agent_taxi)
+
+
 class Roles(PathBased):
     """Agent that attributes passengers based on distance to pick up location."""
 

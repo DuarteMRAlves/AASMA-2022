@@ -78,6 +78,8 @@ def main():
         agents = [agent.PathPlanner(agent_id=i) for i in range(num_agents)]
     elif data["agent_type"] == "QuadrantsSocialConventions":
         agents = [agent.QuadrantsSocialConventions(agent_id=i) for i in range(num_agents)]
+    elif data["agent_type"] == "IDsSocialConventions":
+        agents = [agent.IDsSocialConventions(agent_id=i) for i in range(num_agents)]
     elif data["agent_type"] == "Roles":
         agents = [agent.Roles(agent_id=i) for i in range(num_agents)]
     elif data["agent_type"] == "Debug":

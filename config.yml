@@ -11,7 +11,7 @@ log_level: info
 
 # Agents Properties
 
-agent_type: IDsSocialConventions #Random #PathPlanner #IDsSocialConventions #QuadrantsSocialConventions #Roles #Debug
+agent_type: Roles #Random #PathPlanner #IDsSocialConventions #QuadrantsSocialConventions #Roles #Debug
 
 Random: 
   nr_passengers: 4
@@ -30,7 +30,7 @@ IDsSocialConventions:
     nr_agents: 5
 
 Roles:
-  nr_passengers: 4
+  nr_passengers: 10
   nr_agents: 4
 
 Debug:

@@ -1,5 +1,4 @@
 import abc
-import itertools
 import entity
 import env
 import grid
@@ -218,109 +217,30 @@ class Roles(PathBased):
                 roles.append((t, t.has_passenger))
             
         possible_passengers = [p for p in passengers if p.in_trip == entity.TripState.WAITING]
-        assigned_passengers = []
-        for t in taxis:
-            if t.has_passenger is None:
-                shortest_paths = [
-                    self._bfs_with_positions(map, t.loc, p.pick_up)
-                    for p in possible_passengers
-                ]
-                passenger = None
-                min_dist = np.inf
-                for p, path in zip(possible_passengers, shortest_paths):
-                    if len(path) < min_dist and p not in assigned_passengers:
-                        min_dist = len(path)
-                        passenger = p
-                assigned_passengers.append(passenger)
-                roles.append((t, passenger))
+        possible_taxis = [t for t in taxis if t.has_passenger is None]
+        assigned_taxis = []
+        for p in possible_passengers:
+            shortest_paths = [
+                self._bfs_with_positions(map, t.loc, p.pick_up)
+                for t in possible_taxis
+            ]
+            taxi = None
+            min_dist = np.inf
+            for t, path in zip(possible_taxis, shortest_paths):
+                if len(path) < min_dist and t not in assigned_taxis:
+                    min_dist = len(path)
+                    taxi = t
+            assigned_taxis.append(taxi)
+            roles.append((taxi, p))
 
         agent_taxi = taxis[self._agent_id]
         for t, p in roles:
             if t == agent_taxi:
                 if agent_taxi.has_passenger:
                     return self._dropoff_current_passenger(map, agent_taxi)
-                if p is None:
-                    return env.Action.STAY
                 shortest_path = self._bfs_with_positions(map, agent_taxi.loc, p.pick_up)
                 return self._move_in_path_and_act(shortest_path, env.Action.PICK_UP)
-        raise ValueError(f"Agent taxi not assigned: {self._agent_id}, {agent_taxi}")
-
-
-    
-    # def act(self) -> env.Action:
-    #     map = self._last_observation.map
-
-    #     agent_taxi = self._last_observation.taxis[self._agent_id]
-    #     if agent_taxi.has_passenger is not None:
-    #         return self._dropoff_current_passenger(map, agent_taxi)
-        
-    #     taxis = [
-    #         t
-    #         for t in self._last_observation.taxis
-    #         if t.has_passenger is None
-    #     ]
-    #     passengers = [
-    #         p
-    #         for p in self._last_observation.passengers
-    #         if p.in_trip == entity.TripState.WAITING
-    #     ]
-    #     agent_ids = [
-    #         i 
-    #         for i in range(len(taxis))
-    #         if taxis[i].has_passenger is None
-    #     ]
-    #     roles = self._assign_roles(map, agent_ids, taxis, passengers)
-    #     print(roles)
-    #     if self._agent_id not in roles:
-    #         return env.Action.STAY
-    #     target_passenger = roles[self._agent_id]
-    #     path = self._bfs_with_positions(map, agent_taxi.loc, target_passenger.pick_up)
-    #     return self._move_in_path_and_act(path, env.Action.PICK_UP)
-
-    # def _assign_roles(self, 
-    #     map: grid.Map, 
-    #     agent_ids: List[int], 
-    #     taxis: List[entity.Taxi], 
-    #     passengers: List[entity.Passenger],
-    # ):
-    #     """Assign the roles using potential functions.
-        
-    #     It computes the matrix R (n_passengers x n_taxis), where
-    #     R[i, j] = -len(shortest_path(passengers_i, taxi_j))
-
-    #     For each passengers, it assigns it to the nearest taxi,
-    #     until no more taxis are available.
-
-    #     Returns the mappings between the passengers and the assigned taxis.
-    #     """
-    #     n_passengers = len(passengers)
-    #     n_agents = len(agent_ids)
-    #     potentials = np.zeros((n_passengers, n_agents))
-    #     for i, j in itertools.product(range(n_passengers), range(n_agents)):
-    #         passenger = passengers[i]
-    #         taxi = taxis[j]
-    #         potentials[i, j] = -len(self._bfs_with_positions(map, taxi.loc, passenger.pick_up))
-
-    #     I = set()
-    #     role_assignments = {}
-    #     for i in range(n_passengers):
-    #         passenger = passengers[i]
-            
-    #         max_pot = -np.inf
-    #         # Taxi to be assigned to passenger i
-    #         max_agent = None
-
-    #         for j, p in enumerate(potentials[i,:]):
-    #             agent_id = agent_ids[j]
-    #             if p > max_pot and agent_id not in I:
-    #                 max_pot = p
-    #                 max_agent = agent_id
-
-    #         role_assignments[max_agent] = passenger
-    #         I.add(max_agent)
-
-    #     return role_assignments
-        
+        return env.Action.STAY    
 
 
 class Debug(Base):

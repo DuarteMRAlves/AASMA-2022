@@ -197,8 +197,8 @@ class TaxiPrinter(BasePrinter):
 
         self._screen.blit(taxi_sprite, (left, top))
 
-        taxi_center = self.get_cell_center(taxi.loc)
-        draw_text(self._screen, f"{taxi.id}", taxi_center, (0, 0, 0), 18, bold=True)
+        #taxi_center = self.get_cell_center(taxi.loc)
+        #draw_text(self._screen, f"{taxi.id}", taxi_center, (0, 0, 0), 18, bold=True)
 
 class PassengerPrinter(BasePrinter):
     def __init__(
@@ -226,8 +226,8 @@ class PassengerPrinter(BasePrinter):
             pygame.draw.rect(self._screen, draw_colour, pick_up_rect2)
             pygame.draw.rect(self._screen, draw_colour, pick_up_rect3)
 
-            passenger_center = self.get_cell_center(passenger.pick_up)
-            draw_text(self._screen, f"{passenger.id}", passenger_center, (0, 0, 0), 18, bold=True)
+            #passenger_center = self.get_cell_center(passenger.pick_up)
+            #draw_text(self._screen, f"{passenger.id}", passenger_center, (0, 0, 0), 18, bold=True)
 
 
         drop_off_upper_left = self.get_upper_left(passenger.drop_off)

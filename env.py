@@ -63,6 +63,7 @@ class Environment:
         init_passengers: int,
         printer: "Optional[Printer]" = None,
         log_level: Optional[str] = "info",
+        max_timesteps: Optional[int] = 150,
         seed: Optional[int] = None,
     ):
         self.map = map
@@ -72,6 +73,7 @@ class Environment:
         self._logger = log.new(__name__, lvl=log_level)
         self._init_taxis = init_taxis
         self._init_passengers = init_passengers
+        self._max_timesteps = max_timesteps
 
     def reset(self) -> List[Observation]:
         self._reset()
@@ -124,7 +126,11 @@ class Environment:
         self._delete_passengers()
         observation = Observation(map=self.map, taxis=self.taxis, passengers=self.passengers)
 
-        self.terminal = len(self.passengers) == 0
+        self.terminal = len(self.passengers) == 0 or self._timestep == self._max_timesteps
+        # In the end, add the passengers that are not yet delivered to the list of final passengers
+        # for metrics.
+        if self.terminal:
+            self.final_passengers += [[p.pick_up_time, p.travel_time] for p in self.passengers]
 
         return [observation for _ in range(len(actions))], self.terminal
             

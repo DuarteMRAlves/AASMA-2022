@@ -1,37 +1,37 @@
 %YAML 1.2
 ---
 
-n_runs: 1
+n_runs: 100
 
 # Runs Graphical Interface
 
-graphical: True
+graphical: False
 
-log_level: info
+log_level: warn
 
 # Agents Properties
 
 agent_type: Roles #Random #PathPlanner #IDsSocialConventions #QuadrantsSocialConventions #Roles #Debug
 
 Random: 
-  nr_passengers: 4
-  nr_agents: 4
+  nr_passengers: 25
+  nr_agents: 40
 
 PathPlanner:
-  nr_passengers: 4
-  nr_agents: 4
+  nr_passengers: 25
+  nr_agents: 40
 
 QuadrantsSocialConventions:
-    nr_passengers: 10
-    nr_agents: 5
+    nr_passengers: 25
+    nr_agents: 40
 
 IDsSocialConventions:
-    nr_passengers: 10
-    nr_agents: 5
+    nr_passengers: 25
+    nr_agents: 40
 
 Roles:
-  nr_passengers: 10
-  nr_agents: 4
+  nr_passengers: 25
+  nr_agents: 40
 
 Debug:
     nr_passengers: 4
